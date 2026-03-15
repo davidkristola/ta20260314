@@ -14,6 +14,6 @@ To build and run the unit tests:
 $ cd tdd
 $ mkdir build
 $ cd build
-$ cmake .. && cmake --build . && ./technical_assessment_tests
+$ cmake .. && cmake --build . && ./ta_tests
 
 Note that the unit tests require Google Test.
