@@ -4,6 +4,7 @@ project(technical_assessment)
 set(CMAKE_CXX_STANDARD 17)
 
 set(source_files
+    event_queue.cpp
 )
 
 add_executable(technical_assessment main.cpp "${source_files}")
