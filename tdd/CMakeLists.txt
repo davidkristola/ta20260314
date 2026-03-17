@@ -7,8 +7,11 @@ find_package(GTest REQUIRED)
 
 set(source_files
     ../src/event_queue.cpp
+    ../src/aircraft.cpp
     tests/test_event_queue.cpp
     tests/test_event_type.cpp
+    tests/test_aircraft_type.cpp
+    tests/test_aircraft.cpp
 )
 
 add_executable(ta_tests main.cpp "${source_files}")
