@@ -1,4 +1,5 @@
 #include "aircraft_type.hpp"
+#include <random>
 
 #include "gtest/gtest.h"
 
@@ -21,4 +22,12 @@ TEST(AircraftType, charge_rate) {
     // WHEN -- the charge rate is checked
     // THEN -- the charge rate is CAPACITY / CHARGE_TIME
     EXPECT_DOUBLE_EQ(CONDOR.charge_rate(), (CAPACITY / CHARGE_TIME));
+}
+
+TEST(AircraftType, seeded_random_number_generator) {
+    std::mt19937 gen32;
+    gen32.discard(10000 - 1);
+    EXPECT_EQ(gen32(), 4123659995);
+    gen32.seed(1);
+    EXPECT_EQ(gen32(), 1791095845);
 }
