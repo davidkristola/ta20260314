@@ -7,12 +7,11 @@
 namespace ta {
 
 class FaultModel {
-    ProbabilityPerHourType m_probability;
-    std::mt19937_64 m_generator;
+    std::mt19937 m_generator;
 
 public:
-    FaultModel(ProbabilityPerHourType probability) noexcept;
-    HoursType time_to_next_fault() noexcept;
+    FaultModel() noexcept;
+    HoursType time_to_next_fault(ProbabilityPerHourType probability) noexcept;
 };
 
 } // namespace ta
