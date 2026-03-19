@@ -5,6 +5,8 @@
 namespace ta {
 
 class Statistics {
+    std::string_view m_name = "";
+
     FlightCountType m_flight_count           = 0U;
     ChargeSessionCountType m_charge_sessions = 0U;
     FaultCountType m_faults                  = 0U;
@@ -15,8 +17,9 @@ class Statistics {
     PassengerMilesType m_accumulated_passenger_miles = 0.0;
 
 public:
-    Statistics(AircraftType aircraft_type) noexcept;
+    Statistics(const AircraftType& aircraft_type) noexcept;
 
+    std::string_view name() const noexcept { return m_name; }
     FlightCountType total_flights() const noexcept;
     ChargeSessionCountType total_charge_sessions() const noexcept;
     PassengerMilesType total_passenger_miles() const noexcept;

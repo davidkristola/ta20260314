@@ -2,7 +2,7 @@
 
 namespace ta {
 
-Statistics::Statistics(AircraftType aircraft_type) noexcept {}
+Statistics::Statistics(const AircraftType& aircraft_type) noexcept : m_name(aircraft_type.m_name) {}
 
 FlightCountType Statistics::total_flights() const noexcept { return m_flight_count; }
 

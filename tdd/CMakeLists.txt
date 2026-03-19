@@ -10,12 +10,14 @@ set(source_files
     ../src/aircraft.cpp
     ../src/statistics.cpp
     ../src/fault_model.cpp
+    ../src/sequencer.cpp
     tests/test_event_queue.cpp
     tests/test_event_type.cpp
     tests/test_aircraft_type.cpp
     tests/test_aircraft.cpp
     tests/test_statistics.cpp
     tests/test_fault_model.cpp
+    tests/test_sequencer.cpp
 )
 
 add_executable(ta_tests main.cpp "${source_files}")
