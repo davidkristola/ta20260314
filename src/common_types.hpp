@@ -11,7 +11,7 @@ using MilesPerHourType         = double;
 using KilowattHoursType        = double;
 using KilowattHoursPerMileType = double;
 using KilowattHoursPerHourType = double;
-using ProbabilityType          = double;
+using ProbabilityPerHourType   = double;
 using PassengerMilesType       = double;
 
 using PassengerCountType     = unsigned int;
