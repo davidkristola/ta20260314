@@ -11,8 +11,13 @@ using MilesPerHourType         = double;
 using KilowattHoursType        = double;
 using KilowattHoursPerMileType = double;
 using KilowattHoursPerHourType = double;
-using PassengerCountType       = unsigned int;
 using ProbabilityType          = double;
+using PassengerMilesType       = double;
+
+using PassengerCountType     = unsigned int;
+using FlightCountType        = unsigned int;
+using FaultCountType         = unsigned int;
+using ChargeSessionCountType = unsigned int;
 
 enum class Cause { end_of_simulation, take_off, land, start_charging, complete_charging, experience_fault };
 
