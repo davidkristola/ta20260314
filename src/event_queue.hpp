@@ -17,6 +17,7 @@ public:
     void push(EventType event) noexcept;
     bool empty() const noexcept;
     EventType pop() noexcept;
+    HoursType top_time() const noexcept;
 };
 
 } // namespace ta

@@ -12,4 +12,9 @@ EventType EventQueue::pop() noexcept {
     return event;
 }
 
+HoursType EventQueue::top_time() const noexcept {
+    const auto event = m_queue.top();
+    return event.time();
+}
+
 } // namespace ta
