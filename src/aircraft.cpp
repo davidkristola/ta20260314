@@ -1,4 +1,7 @@
 #include "aircraft.hpp"
+#include "event_queue.hpp"
+#include "event_type.hpp"
+#include "shared_resources.hpp"
 
 namespace ta {
 
@@ -12,7 +15,6 @@ Aircraft::Aircraft(const Aircraft& other) noexcept
     : SimEntity(other)
     , m_type(other.m_type)
     , m_current_charge(other.m_current_charge)
-    , m_current_time(other.m_current_time)
     , m_state(other.m_state)
 {}
 
@@ -20,21 +22,13 @@ Aircraft::Aircraft(Aircraft&& other) noexcept
     : SimEntity(std::move(other))
     , m_type(other.m_type)
     , m_current_charge(other.m_current_charge)
-    , m_current_time(other.m_current_time)
     , m_state(other.m_state)
 {}
 
-HoursType Aircraft::charge_time() const noexcept
-{
-    const auto charge_remaining = (m_type.m_battery_capacity - m_current_charge);
-    return (charge_remaining / m_type.charge_rate());
-}
-
 void Aircraft::fly_for(HoursType time, SharedResources& res) noexcept
 {
-    m_current_time += time;
     const MilesType distance = (time * m_type.m_cruise_speed);
-    m_current_charge -= (distance / m_type.m_energy_used_at_cruise);
+    m_current_charge -= (distance * m_type.m_energy_used_at_cruise);
     if (m_current_charge < 0.0) {
         m_current_charge = 0.0;
     }
@@ -44,7 +38,6 @@ void Aircraft::fly_for(HoursType time, SharedResources& res) noexcept
 
 void Aircraft::charge_for(HoursType time, SharedResources& res) noexcept
 {
-    m_current_time += time;
     const auto charge_amount = (time * m_type.charge_rate());
     m_current_charge += charge_amount;
     if (m_current_charge > m_type.m_battery_capacity) {
@@ -53,8 +46,6 @@ void Aircraft::charge_for(HoursType time, SharedResources& res) noexcept
     auto& s = res.m_statistics.get(m_type.m_name);
     s.record_charging_session(time);
 }
-
-void Aircraft::delay_for(HoursType time) noexcept { m_current_time += time; }
 
 void Aircraft::process_event(const EventType& e, SharedResources& res)
 {

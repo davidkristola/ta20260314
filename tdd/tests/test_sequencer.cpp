@@ -72,3 +72,27 @@ TEST(Sequencer, fly_and_charge)
     EXPECT_EQ(ta::AircraftState::idle, aircraft.state());
     EXPECT_DOUBLE_EQ(1.0, uut.simulation_time());
 }
+
+TEST(Sequencer, run_until_done)
+{
+    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    uut.step();
+    uut.step();
+    uut.step();
+    uut.step();
+    uut.step();
+    EXPECT_TRUE(uut.done());
+}
+
+TEST(Sequencer, dont_blow_up)
+{
+    ta::Sequencer uut{{CONDOR}, 1, 1, 5.0};
+    uut.step();
+    uut.step();
+    uut.step();
+    uut.step();
+    uut.step();
+    EXPECT_TRUE(uut.done());
+    uut.step();
+    EXPECT_DOUBLE_EQ(5.0, uut.simulation_time());
+}

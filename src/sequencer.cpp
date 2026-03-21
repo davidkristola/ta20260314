@@ -13,20 +13,23 @@ Sequencer::Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType
         EventType takeoff_event{m_current_time, Cause::take_off, id};
         m_shared.m_queue.push(takeoff_event);
     }
-    for (SimEntityId id = 1U; id <= cc; ++id) {
-        m_chargers.push_back({id});
-    }
+
     for (const auto& t : m_aircraft_types) {
         m_shared.m_statistics.add(Statistics{t});
     }
 }
 
-bool      Sequencer::done() const noexcept { return false; }
-HoursType Sequencer::simulation_time() const noexcept { return m_current_time; }
-
 Statistics Sequencer::statistics(std::string_view type_name) { return m_shared.m_statistics.get(type_name); }
-void       Sequencer::step() noexcept
+
+void Sequencer::step() noexcept
 {
+    if (m_shared.m_queue.empty()) {
+        m_done = true;
+        return;
+    }
+    if (m_done) {
+        return;
+    }
     const auto event = m_shared.m_queue.pop();
     const auto ac_id = event.aircraft();
     auto&      ac    = m_aircraft[ac_id];
@@ -34,27 +37,33 @@ void       Sequencer::step() noexcept
     case Cause::take_off: {
         ac.process_event(event, m_shared);
     } break;
+
     case Cause::land: {
         ac.process_event(event, m_shared);
         // TODO(djk): start charging (introduce a vertiport simulation entity and dispatch event there)
         EventType start_charging_event{event.time(), Cause::start_charging, event.aircraft()};
         m_shared.m_queue.push(start_charging_event);
     } break;
+
     case Cause::start_charging: {
         ac.process_event(event, m_shared);
     } break;
+
     case Cause::complete_charging: {
         ac.process_event(event, m_shared);
     } break;
-    case Cause::end_of_simulation: {
 
+    case Cause::end_of_simulation: {
+        m_done = true;
     } break;
 
     default:
         // TODO(djk): add/handle fault
         break;
     }
-    m_current_time = m_shared.m_queue.top_time();
+    if (not m_shared.m_queue.empty()) {
+        m_current_time = m_shared.m_queue.top_time();
+    }
 }
 
 const AircraftType& Sequencer::pick_type(SimEntityId id) const noexcept
