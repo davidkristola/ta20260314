@@ -3,22 +3,27 @@
 #include "aircraft.hpp"
 #include "common_types.hpp"
 #include "event_queue.hpp"
+#include "shared_resources.hpp"
 #include "statistics.hpp"
 
 #include <array>
+#include <map>
 #include <optional>
 #include <vector>
 
 namespace ta {
 
 class Charger {
-    ChargerId m_id;
-    bool m_available             = true;
-    AircraftId m_last_to_connect = 0U;
+    SimEntityId m_id;
+    bool        m_available       = true;
+    SimEntityId m_last_to_connect = 0U;
 
 public:
-    Charger(ChargerId id) noexcept : m_id(id) {}
-    void start(AircraftId id) noexcept {
+    Charger(SimEntityId id) noexcept
+        : m_id(id)
+    {}
+    void start(SimEntityId id) noexcept
+    {
         m_available       = false;
         m_last_to_connect = id;
     }
@@ -27,26 +32,32 @@ public:
 };
 
 class Sequencer {
-    std::vector<AircraftType> m_aircraft_types;
-    std::vector<Aircraft> m_aircraft;
-    std::vector<Statistics> m_statistics;
+    std::vector<AircraftType>       m_aircraft_types;
+    std::map<SimEntityId, Aircraft> m_aircraft;
+    //    StatisticsPool                  m_statistics;
     std::vector<Charger> m_chargers;
-    int m_next_event_id = 0;
-    EventQueue m_queue;
-    HoursType m_current_time = 0.0;
+    int                  m_next_event_id = 0;
+    //    EventQueue                      m_queue;
+    HoursType       m_current_time = 0.0;
+    SharedResources m_shared;
 
 public:
     Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType ac, ChargerCountType cc,
               HoursType run_time) noexcept;
 
-    bool done() const noexcept;
-    HoursType simulation_time() const noexcept;
+    bool              done() const noexcept;
+    HoursType         simulation_time() const noexcept;
     AircraftCountType aircraft_count() const noexcept { return m_aircraft.size(); }
-    ChargerCountType charger_count() const noexcept { return m_chargers.size(); }
-    const Aircraft& aircraft(AircraftCountType index) const { return m_aircraft[index]; }
-    std::optional<const Statistics*> statistics(std::string_view type_name) const;
+    ChargerCountType  charger_count() const noexcept { return m_chargers.size(); }
+    Aircraft&         aircraft(SimEntityId id) { return m_aircraft[id]; }
+
+    // Return a *copy* of the requested statistics at this point in time.
+    Statistics statistics(std::string_view type_name);
 
     void step() noexcept;
+
+private:
+    const AircraftType& pick_type(SimEntityId id) const noexcept;
 };
 
 } // namespace ta

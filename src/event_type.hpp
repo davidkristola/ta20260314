@@ -2,26 +2,25 @@
 
 #include "common_types.hpp"
 
-#include <optional>
-
 namespace ta {
 
 class EventType {
-    int m_id         = 0;
-    HoursType m_when = 0.0;
-    Cause m_what;
-    std::optional<AircraftId> m_who;
-    std::optional<ChargerId> m_where;
+    HoursType   m_when = 0.0;
+    Cause       m_what;
+    SimEntityId m_who;
+    SimEntityId m_where;
 
 public:
-    EventType(int id, Cause reason, HoursType time) noexcept : m_id(id), m_when(time), m_what(reason) {}
-    HoursType time() const noexcept { return m_when; }
-    int id() const noexcept { return m_id; }
-    Cause cause() const noexcept { return m_what; }
-    void set_aircraft(AircraftId id) noexcept { m_who = id; }
-    void set_charger(ChargerId id) noexcept { m_where = id; }
-    std::optional<AircraftId> aircraft() const noexcept { return m_who; }
-    std::optional<ChargerId> charger() const noexcept { return m_where; }
+    EventType(HoursType time, Cause reason, SimEntityId who = 0U, SimEntityId where = 0U) noexcept
+        : m_when(time)
+        , m_what(reason)
+        , m_who(who)
+        , m_where(where)
+    {}
+    HoursType   time() const noexcept { return m_when; }
+    Cause       cause() const noexcept { return m_what; }
+    SimEntityId aircraft() const noexcept { return m_who; } // TODO(djk): rename to who or target
+    SimEntityId charger() const noexcept { return m_where; }
 };
 
 } // namespace ta

@@ -2,22 +2,19 @@
 
 #include "gtest/gtest.h"
 
-TEST(EventType, aircraft) {
-    ta::EventType uut{1, ta::Cause::land, 13.0};
-    const auto null_id = uut.aircraft();
-    EXPECT_FALSE(null_id);
-    uut.set_aircraft(13U);
-    const auto real_id = uut.aircraft();
-    EXPECT_TRUE(real_id);
-    EXPECT_EQ(real_id.value_or(20U), 13U);
+TEST(EventType, aircraft)
+{
+    ta::EventType uut{13.0, ta::Cause::land, 13U};
+    EXPECT_DOUBLE_EQ(13.0, uut.time());
+    EXPECT_EQ(ta::Cause::land, uut.cause());
+    EXPECT_EQ(13U, uut.aircraft());
 }
 
-TEST(EventType, charger) {
-    ta::EventType uut{1, ta::Cause::start_charging, 13.0};
-    const auto null_id = uut.charger();
-    EXPECT_FALSE(null_id);
-    uut.set_charger(13U);
-    const auto real_id = uut.charger();
-    EXPECT_TRUE(real_id);
-    EXPECT_EQ(real_id.value_or(20U), 13U);
+TEST(EventType, charger)
+{
+    ta::EventType uut{13.0, ta::Cause::start_charging, 13U, 7U};
+    EXPECT_DOUBLE_EQ(13.0, uut.time());
+    EXPECT_EQ(ta::Cause::start_charging, uut.cause());
+    EXPECT_EQ(13U, uut.aircraft());
+    EXPECT_EQ(7U, uut.charger());
 }

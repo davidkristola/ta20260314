@@ -3,51 +3,64 @@
 namespace ta {
 Sequencer::Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType ac, ChargerCountType cc,
                      HoursType run_time) noexcept
-    : m_aircraft_types(aircraft_types) //
+    : m_aircraft_types(aircraft_types)
 {
-    m_queue.push(EventType{m_next_event_id++, Cause::end_of_simulation, run_time});
-    for (AircraftId id = 1U; id <= ac; ++id) {
-        m_aircraft.push_back({m_aircraft_types[0], id});
-        EventType takeoff_event{m_next_event_id++, Cause::take_off, m_current_time};
-        takeoff_event.set_aircraft(id);
-        m_queue.push(takeoff_event);
+    m_shared.m_queue.push(EventType{run_time, Cause::end_of_simulation});
+
+    for (SimEntityId id = 1U; id <= ac; ++id) {
+        Aircraft temp_ac{pick_type(id), id};
+        m_aircraft.emplace(id, temp_ac);
+        EventType takeoff_event{m_current_time, Cause::take_off, id};
+        m_shared.m_queue.push(takeoff_event);
     }
-    for (ChargerId id = 1U; id <= cc; ++id) {
+    for (SimEntityId id = 1U; id <= cc; ++id) {
         m_chargers.push_back({id});
     }
     for (const auto& t : m_aircraft_types) {
-        m_statistics.push_back(Statistics{t});
+        m_shared.m_statistics.add(Statistics{t});
     }
 }
 
-bool Sequencer::done() const noexcept { return false; }
+bool      Sequencer::done() const noexcept { return false; }
 HoursType Sequencer::simulation_time() const noexcept { return m_current_time; }
 
-std::optional<const Statistics*> Sequencer::statistics(std::string_view type_name) const {
-    for (const auto& s : m_statistics) {
-        if (s.name() == type_name) {
-            return &s;
-        }
-    }
-    return std::optional<const Statistics*>{};
-}
-void Sequencer::step() noexcept {
-    const auto event = m_queue.pop();
+Statistics Sequencer::statistics(std::string_view type_name) { return m_shared.m_statistics.get(type_name); }
+void       Sequencer::step() noexcept
+{
+    const auto event = m_shared.m_queue.pop();
+    const auto ac_id = event.aircraft();
+    auto&      ac    = m_aircraft[ac_id];
     switch (event.cause()) {
     case Cause::take_off: {
-        const auto ac_id       = event.aircraft();
-        const auto& ac         = m_aircraft[ac_id.value() - 1];
-        const auto flight_time = ac.flight_time();
-        // TODO(djk): inject faults
-        EventType land_event{m_next_event_id++, Cause::land, m_current_time + flight_time};
-        land_event.set_aircraft(ac_id.value());
-        m_queue.push(land_event);
+        ac.process_event(event, m_shared);
+    } break;
+    case Cause::land: {
+        ac.process_event(event, m_shared);
+        // TODO(djk): start charging (introduce a vertiport simulation entity and dispatch event there)
+        EventType start_charging_event{event.time(), Cause::start_charging, event.aircraft()};
+        m_shared.m_queue.push(start_charging_event);
+    } break;
+    case Cause::start_charging: {
+        ac.process_event(event, m_shared);
+    } break;
+    case Cause::complete_charging: {
+        ac.process_event(event, m_shared);
+    } break;
+    case Cause::end_of_simulation: {
+
     } break;
 
     default:
+        // TODO(djk): add/handle fault
         break;
     }
-    m_current_time = m_queue.top_time();
+    m_current_time = m_shared.m_queue.top_time();
+}
+
+const AircraftType& Sequencer::pick_type(SimEntityId id) const noexcept
+{
+    // TODO(djk): This is one of two places where random numbers need to be used
+    return m_aircraft_types[0];
 }
 
 } // namespace ta

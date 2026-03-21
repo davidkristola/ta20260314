@@ -2,8 +2,8 @@
 
 namespace ta {
 
-using AircraftId = unsigned long int;
-using ChargerId  = unsigned long int;
+using SimEntityId                        = unsigned long int;
+constexpr SimEntityId InvalidSimEntityId = 0U;
 
 using HoursType                = double;
 using MilesType                = double;
