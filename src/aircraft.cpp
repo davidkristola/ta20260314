@@ -53,8 +53,7 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
     case Cause::take_off: {
         m_state = AircraftState::flying;
         // TODO(djk): inject faults
-        EventType land_event{e.time() + flight_time(), Cause::land, id(), e.recipient()};
-        res.m_queue.push(land_event);
+        res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.recipient()});
         m_activity_start_time = e.time();
     } break;
     case Cause::land: {
@@ -73,6 +72,9 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
         m_state = AircraftState::idle;
         charge_for(e.time() - m_activity_start_time, res);
         m_activity_start_time = e.time();
+        // Now automatically fly again (this could be managed externally by some sort of dispatcher or at least
+        // configurable).
+        res.m_queue.push({e.time(), Cause::take_off, id(), res.m_vertiport_id});
     } break;
 
     default:

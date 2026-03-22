@@ -69,7 +69,7 @@ void Sequencer::step() noexcept
         // TODO(djk): add/handle fault
         break;
     }
-    if (not m_shared.m_queue.empty()) {
+    if (not(m_done or m_shared.m_queue.empty())) {
         m_current_time = m_shared.m_queue.top_time();
     }
 }
