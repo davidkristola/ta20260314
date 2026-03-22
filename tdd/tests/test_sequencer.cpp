@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+#include <cmath>
+
 namespace {
 constexpr ta::AircraftType CONDOR = {.m_name                       = "Condor",
                                      .m_cruise_speed               = 100.0,
@@ -23,6 +25,7 @@ constexpr ta::HoursType flight_time(ta::AircraftType ac)
 {
     return (ac.m_battery_capacity / ac.m_energy_used_at_cruise) / ac.m_cruise_speed;
 }
+constexpr ta::HoursType charge_time(ta::AircraftType ac) { return ac.m_time_to_charge; }
 } // namespace
 
 TEST(Sequencer, initial_state)
@@ -103,4 +106,24 @@ TEST(Sequencer, dont_blow_up)
     EXPECT_TRUE(uut.done());
     uut.step();
     EXPECT_DOUBLE_EQ(1.0, uut.simulation_time());
+}
+
+TEST(Sequencer, bigger_run)
+{
+    constexpr ta::HoursType SIM_TIME = 5.0;
+    ta::Sequencer           uut{{CONDOR, BUMBLE_BEE}, 2, 2, SIM_TIME};
+    while (not uut.done()) {
+        uut.step();
+    }
+    EXPECT_DOUBLE_EQ(SIM_TIME, uut.simulation_time());
+
+    const auto condor_cycles =
+        static_cast<unsigned int>(std::floor(SIM_TIME / (flight_time(CONDOR) + charge_time(CONDOR))));
+    EXPECT_EQ(condor_cycles, uut.statistics(CONDOR.m_name).total_flights());
+    EXPECT_EQ(condor_cycles, uut.statistics(CONDOR.m_name).total_charge_sessions());
+
+    const auto bumble_cycles =
+        static_cast<unsigned int>(std::floor(SIM_TIME / (flight_time(BUMBLE_BEE) + charge_time(BUMBLE_BEE))));
+    EXPECT_EQ(bumble_cycles, uut.statistics(BUMBLE_BEE.m_name).total_flights());
+    EXPECT_EQ(bumble_cycles, uut.statistics(BUMBLE_BEE.m_name).total_charge_sessions());
 }

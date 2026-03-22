@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(source_files
     event_queue.cpp
+    aircraft.cpp
+    statistics.cpp
+    fault_model.cpp
+    sequencer.cpp
+    vertiport.cpp
 )
 
 add_executable(technical_assessment main.cpp "${source_files}")

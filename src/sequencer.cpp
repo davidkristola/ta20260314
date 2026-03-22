@@ -14,8 +14,8 @@ Sequencer::Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType
     m_shared.m_queue.push(EventType{run_time, Cause::end_of_simulation});
 
     for (SimEntityId id = 1U; id <= ac; ++id) {
-        Aircraft temp_ac{pick_type(id), id};
-        m_aircraft.emplace(id, temp_ac);
+        Aircraft aircraft{pick_type(id), id};
+        m_aircraft.emplace(id, aircraft);
         EventType takeoff_event{m_current_time, Cause::take_off, id};
         m_shared.m_queue.push(takeoff_event);
     }
@@ -77,7 +77,7 @@ void Sequencer::step() noexcept
 const AircraftType& Sequencer::pick_type(SimEntityId id) const noexcept
 {
     // TODO(djk): This is one of two places where random numbers need to be used
-    return m_aircraft_types[0];
+    return m_aircraft_types[(id - 1) % m_aircraft_types.size()];
 }
 
 } // namespace ta
