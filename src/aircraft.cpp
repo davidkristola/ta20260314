@@ -53,7 +53,7 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
     case Cause::take_off: {
         m_state = AircraftState::flying;
         // TODO(djk): inject faults
-        EventType land_event{e.time() + flight_time(), Cause::land, id()};
+        EventType land_event{e.time() + flight_time(), Cause::land, id(), e.recipient()};
         res.m_queue.push(land_event);
         m_activity_start_time = e.time();
     } break;
@@ -61,6 +61,7 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
         m_state = AircraftState::idle;
         fly_for(e.time() - m_activity_start_time, res);
         m_activity_start_time = e.time();
+        res.m_queue.push({e.time(), Cause::land, res.m_vertiport_id, id()});
     } break;
     case Cause::start_charging: {
         m_state = AircraftState::charging;

@@ -5,6 +5,7 @@
 #include "event_queue.hpp"
 #include "shared_resources.hpp"
 #include "statistics.hpp"
+#include "vertiport.hpp"
 
 #include <map>
 #include <vector>
@@ -17,6 +18,7 @@ class Sequencer {
     HoursType                       m_current_time = 0.0;
     SharedResources                 m_shared;
     bool                            m_done = false;
+    Vertiport                       m_vertiport;
 
 public:
     Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType ac, ChargerCountType cc,

@@ -17,6 +17,7 @@ constexpr ta::AircraftType             BUMBLE_BEE       = {.m_name              
                                                            .m_passenger_count            = 2U,
                                                            .m_fault_probability_per_hour = 0.13};
 constexpr ta::HoursType                FULL_FLIGHT_TIME = (ENERGY / WORK) / CRUISE_SPEED;
+constexpr ta::SimEntityId              VERTIPORT_ID     = 88U;
 } // namespace
 
 TEST(Aircraft, init)
@@ -84,4 +85,36 @@ TEST(Aircraft, charging_half)
     uut.charge_for(CHARGE_TIME / 2.0, sr);
 
     EXPECT_DOUBLE_EQ(uut.charge_time(), CHARGE_TIME / 2.0);
+}
+
+TEST(Aircraft, take_off)
+{
+    ta::Aircraft        uut{BUMBLE_BEE, 32U};
+    ta::SharedResources sr{};
+    ta::EventType       takeoff_event{0.0, ta::Cause::take_off, 32U, VERTIPORT_ID};
+    sr.m_vertiport_id = VERTIPORT_ID;
+    uut.process_event(takeoff_event, sr);
+    EXPECT_EQ(ta::AircraftState::flying, uut.state());
+    ASSERT_FALSE(sr.m_queue.empty());
+    const auto event = sr.m_queue.pop();
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, event.time());
+    EXPECT_EQ(32U, event.aircraft());
+    EXPECT_EQ(ta::Cause::land, event.cause());
+    EXPECT_EQ(VERTIPORT_ID, event.recipient());
+}
+
+TEST(Aircraft, land)
+{
+    ta::Aircraft        uut{BUMBLE_BEE, 32U};
+    ta::SharedResources sr{};
+    ta::EventType       event{FULL_FLIGHT_TIME, ta::Cause::land, 32U, VERTIPORT_ID};
+    sr.m_vertiport_id = VERTIPORT_ID;
+    uut.process_event(event, sr);
+    EXPECT_EQ(ta::AircraftState::idle, uut.state());
+    ASSERT_FALSE(sr.m_queue.empty());
+    event = sr.m_queue.pop();
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, event.time());
+    EXPECT_EQ(VERTIPORT_ID, event.target());
+    EXPECT_EQ(ta::Cause::land, event.cause());
+    EXPECT_EQ(32, event.object());
 }

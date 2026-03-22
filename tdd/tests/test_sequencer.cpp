@@ -61,12 +61,14 @@ TEST(Sequencer, fly_and_charge)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
     const auto&   aircraft = uut.aircraft(1U);
-    uut.step();
-    uut.step();
-    uut.step();
+    uut.step(); // takeoff event to aircraft
+    uut.step(); // landing event to aircraft
+    uut.step(); // landing event to vertiport
+    uut.step(); // charging event to aircraft
     EXPECT_EQ(ta::AircraftState::charging, aircraft.state());
     EXPECT_DOUBLE_EQ(flight_time(CONDOR) + CONDOR.m_time_to_charge, uut.simulation_time());
-    uut.step();
+    uut.step(); // done charging event to aircraft
+    uut.step(); // end of simulation
     EXPECT_EQ(1U, uut.statistics(CONDOR.m_name).total_flights());
     EXPECT_EQ(1U, uut.statistics(CONDOR.m_name).total_charge_sessions());
     EXPECT_EQ(ta::AircraftState::idle, aircraft.state());
@@ -76,22 +78,24 @@ TEST(Sequencer, fly_and_charge)
 TEST(Sequencer, run_until_done)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    uut.step();
-    uut.step();
-    uut.step();
-    uut.step();
-    uut.step();
+    uut.step(); // takeoff event to aircraft
+    uut.step(); // landing event to aircraft
+    uut.step(); // landing event to vertiport
+    uut.step(); // charging event to aircraft
+    uut.step(); // done charging event to aircraft
+    uut.step(); // end of simulation
     EXPECT_TRUE(uut.done());
 }
 
 TEST(Sequencer, dont_blow_up)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 5.0};
-    uut.step();
-    uut.step();
-    uut.step();
-    uut.step();
-    uut.step();
+    uut.step(); // takeoff event to aircraft
+    uut.step(); // landing event to aircraft
+    uut.step(); // landing event to vertiport
+    uut.step(); // charging event to aircraft
+    uut.step(); // done charging event to aircraft
+    uut.step(); // end of simulation
     EXPECT_TRUE(uut.done());
     uut.step();
     EXPECT_DOUBLE_EQ(5.0, uut.simulation_time());

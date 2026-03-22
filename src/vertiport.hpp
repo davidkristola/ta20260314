@@ -6,7 +6,7 @@
 
 namespace ta {
 
-class Vertiport : SimEntity {
+class Vertiport : public SimEntity {
     ChargerCountType        m_chargers;
     ChargerCountType        m_in_use = 0U;
     std::deque<SimEntityId> m_waiting;
@@ -26,7 +26,6 @@ public:
     void process_landing(const EventType& e, SharedResources& res);
     void start_charging(const EventType& e, SharedResources& res);
     void complete_charging(const EventType& e, SharedResources& res);
-    void start_waiting(const EventType& e, SharedResources& res);
 };
 
 } // namespace ta

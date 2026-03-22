@@ -11,16 +11,21 @@ class EventType {
     SimEntityId m_where;
 
 public:
-    EventType(HoursType time, Cause reason, SimEntityId who = 0U, SimEntityId where = 0U) noexcept
+    EventType(HoursType time, Cause reason, SimEntityId who = InvalidSimEntityId,
+              SimEntityId where = InvalidSimEntityId) noexcept
         : m_when(time)
         , m_what(reason) // verb
-        , m_who(who)     // subject
-        , m_where(where) // object
+        , m_who(who)     // subject/agent
+        , m_where(where) // object/recipient
     {}
     HoursType   time() const noexcept { return m_when; }
     Cause       cause() const noexcept { return m_what; }
-    SimEntityId aircraft() const noexcept { return m_who; } // TODO(djk): rename to who or target
+    SimEntityId aircraft() const noexcept { return m_who; }
+    SimEntityId target() const noexcept { return m_who; }
+    SimEntityId agent() const noexcept { return m_who; }
     SimEntityId charger() const noexcept { return m_where; }
+    SimEntityId recipient() const noexcept { return m_where; }
+    SimEntityId object() const noexcept { return m_where; }
 };
 
 } // namespace ta
