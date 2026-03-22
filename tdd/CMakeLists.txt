@@ -12,6 +12,7 @@ set(source_files
     ../src/statistics.cpp
     ../src/fault_model.cpp
     ../src/sequencer.cpp
+    ../src/vertiport.cpp
     tests/test_event_queue.cpp
     tests/test_event_type.cpp
     tests/test_aircraft_type.cpp
@@ -19,6 +20,7 @@ set(source_files
     tests/test_statistics.cpp
     tests/test_fault_model.cpp
     tests/test_sequencer.cpp
+    tests/test_vertiport.cpp
 )
 
 add_executable(ta_tests main.cpp "${source_files}")

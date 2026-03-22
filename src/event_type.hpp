@@ -13,9 +13,9 @@ class EventType {
 public:
     EventType(HoursType time, Cause reason, SimEntityId who = 0U, SimEntityId where = 0U) noexcept
         : m_when(time)
-        , m_what(reason)
-        , m_who(who)
-        , m_where(where)
+        , m_what(reason) // verb
+        , m_who(who)     // subject
+        , m_where(where) // object
     {}
     HoursType   time() const noexcept { return m_when; }
     Cause       cause() const noexcept { return m_what; }
