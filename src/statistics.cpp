@@ -2,7 +2,9 @@
 
 namespace ta {
 
-Statistics::Statistics(const AircraftType& aircraft_type) noexcept : m_name(aircraft_type.m_name) {}
+Statistics::Statistics(const AircraftType& aircraft_type) noexcept
+    : m_name(aircraft_type.m_name)
+{}
 
 FlightCountType Statistics::total_flights() const noexcept { return m_flight_count; }
 
@@ -12,21 +14,28 @@ PassengerMilesType Statistics::total_passenger_miles() const noexcept { return m
 
 FaultCountType Statistics::total_faults() const noexcept { return m_faults; }
 
+AircraftCountType Statistics::total_vehicles() const noexcept { return m_vehicles.size(); }
+
+void Statistics::record_vehicle(SimEntityId id) noexcept { m_vehicles.emplace(id); }
+
 void Statistics::record_fault() noexcept { m_faults += 1U; }
 
-void Statistics::record_charging_session(HoursType hours) noexcept {
+void Statistics::record_charging_session(HoursType hours) noexcept
+{
     m_charge_sessions += 1U;
     m_accumulated_charge_time += hours;
 }
 
-void Statistics::record_flight(HoursType hours, MilesType miles, PassengerCountType passengers) noexcept {
+void Statistics::record_flight(HoursType hours, MilesType miles, PassengerCountType passengers) noexcept
+{
     m_flight_count += 1U;
     m_accumulated_flight_hours += hours;
     m_accumulated_flight_miles += miles;
     m_accumulated_passenger_miles += (miles * static_cast<PassengerMilesType>(passengers));
 }
 
-HoursType Statistics::average_hours_per_flight() const noexcept {
+HoursType Statistics::average_hours_per_flight() const noexcept
+{
     if (m_flight_count == 0U) {
         return 0.0;
     }
@@ -34,7 +43,8 @@ HoursType Statistics::average_hours_per_flight() const noexcept {
     return m_accumulated_flight_hours / count;
 }
 
-MilesType Statistics::average_miles_per_flight() const noexcept {
+MilesType Statistics::average_miles_per_flight() const noexcept
+{
     if (m_flight_count == 0U) {
         return 0.0;
     }
@@ -42,7 +52,8 @@ MilesType Statistics::average_miles_per_flight() const noexcept {
     return m_accumulated_flight_miles / count;
 }
 
-HoursType Statistics::average_hours_per_charge() const noexcept {
+HoursType Statistics::average_hours_per_charge() const noexcept
+{
     if (m_charge_sessions == 0U) {
         return 0.0;
     }

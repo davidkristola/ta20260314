@@ -6,7 +6,7 @@
 
 namespace ta {
 
-enum class AircraftState { idle, charging, flying };
+enum class AircraftState { idle, charging, flying, faulted };
 
 class Aircraft : public SimEntity {
     AircraftType      m_type;
@@ -27,6 +27,8 @@ public:
 
     // move constructor
     Aircraft(Aircraft&& other) noexcept;
+
+    const AircraftType& get_type() const noexcept { return m_type; }
 
     virtual void process_event(const EventType& e, SharedResources& res) override;
 

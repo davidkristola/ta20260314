@@ -12,6 +12,15 @@
 
 namespace ta {
 
+struct Configuration {
+    std::vector<ta::AircraftType> aircraft_types;
+    AircraftCountType             aircraft_count = 20;
+    ChargerCountType              charger_count  = 3;
+    HoursType                     run_time       = 3.0;
+    SeedType                      seed           = 0U;
+    bool                          disable_faults = false;
+};
+
 class Sequencer {
     std::vector<AircraftType>       m_aircraft_types;
     std::map<SimEntityId, Aircraft> m_aircraft;
@@ -24,10 +33,14 @@ public:
     Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType ac, ChargerCountType cc,
               HoursType run_time) noexcept;
 
+    Sequencer(Configuration configuration) noexcept;
+
     bool              done() const noexcept { return m_done; }
     HoursType         simulation_time() const noexcept { return m_current_time; }
     AircraftCountType aircraft_count() const noexcept { return m_aircraft.size(); }
     Aircraft&         aircraft(SimEntityId id) { return m_aircraft[id]; }
+
+    SharedResources& shared_resources() noexcept { return m_shared; }
 
     // Return a *copy* of the requested statistics at this point in time.
     Statistics statistics(std::string_view type_name);
@@ -35,7 +48,7 @@ public:
     void step() noexcept;
 
 private:
-    const AircraftType& pick_type(SimEntityId id) const noexcept;
+    const AircraftType& pick_type(SimEntityId id) noexcept;
 };
 
 } // namespace ta

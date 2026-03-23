@@ -25,8 +25,10 @@ const char* image(ta::Cause c)
 }
 void output_event(std::string dir, ta::EventType event)
 {
+#ifdef DEBUG
     std::cout << "Event Queue " << dir << " at " << event.time() << " " << image(event.cause())
               << " subject=" << event.agent() << " object=" << event.object() << "\n";
+#endif
 }
 } // namespace
 

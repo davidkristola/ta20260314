@@ -41,6 +41,7 @@ TEST(Sequencer, initial_state)
 TEST(Sequencer, first_step)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    uut.shared_resources().disable_faults = true;
     uut.step();
     EXPECT_DOUBLE_EQ(flight_time(CONDOR), uut.simulation_time());
     EXPECT_EQ(0U, uut.statistics(CONDOR.m_name).total_flights());
@@ -51,6 +52,7 @@ TEST(Sequencer, first_step)
 TEST(Sequencer, take_off_and_land)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    uut.shared_resources().disable_faults = true;
     uut.step();
     uut.step();
     EXPECT_DOUBLE_EQ(flight_time(CONDOR), uut.simulation_time());
@@ -63,7 +65,8 @@ TEST(Sequencer, take_off_and_land)
 TEST(Sequencer, fly_and_charge)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    const auto&   aircraft = uut.aircraft(1U);
+    uut.shared_resources().disable_faults = true;
+    const auto& aircraft                  = uut.aircraft(1U);
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -83,6 +86,7 @@ TEST(Sequencer, fly_and_charge)
 TEST(Sequencer, run_until_done)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    uut.shared_resources().disable_faults = true;
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -96,6 +100,7 @@ TEST(Sequencer, run_until_done)
 TEST(Sequencer, dont_blow_up)
 {
     ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    uut.shared_resources().disable_faults = true;
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -112,6 +117,7 @@ TEST(Sequencer, bigger_run)
 {
     constexpr ta::HoursType SIM_TIME = 5.0;
     ta::Sequencer           uut{{CONDOR, BUMBLE_BEE}, 2, 2, SIM_TIME};
+    uut.shared_resources().disable_faults = true;
     while (not uut.done()) {
         uut.step();
     }

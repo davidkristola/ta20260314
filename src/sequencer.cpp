@@ -25,6 +25,33 @@ Sequencer::Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType
     }
 }
 
+Sequencer::Sequencer(Configuration configuration) noexcept
+    : m_aircraft_types(configuration.aircraft_types)
+    , m_vertiport{VERTIPORT_ID, configuration.charger_count}
+{
+    m_shared.m_fault_model.seed(configuration.seed);
+    m_shared.m_vertiport_id = VERTIPORT_ID;
+    m_shared.m_queue.push(EventType{configuration.run_time, Cause::end_of_simulation});
+    m_shared.disable_faults = configuration.disable_faults;
+
+    for (SimEntityId id = 1U; id <= configuration.aircraft_count; ++id) {
+        Aircraft aircraft{pick_type(id), id};
+        m_aircraft.emplace(id, aircraft);
+        EventType takeoff_event{m_current_time, Cause::take_off, id};
+        m_shared.m_queue.push(takeoff_event);
+    }
+
+    for (const auto& t : m_aircraft_types) {
+        m_shared.m_statistics.add(Statistics{t});
+    }
+
+    for (auto [k, v] : m_aircraft) {
+        const auto t = v.get_type();
+        auto&      s = m_shared.m_statistics.get(t.m_name);
+        s.record_vehicle(k);
+    }
+}
+
 Statistics Sequencer::statistics(std::string_view type_name) { return m_shared.m_statistics.get(type_name); }
 
 void Sequencer::step() noexcept
@@ -44,6 +71,7 @@ void Sequencer::step() noexcept
     } else {
         target = &m_aircraft[target_id];
     }
+
     switch (event.cause()) {
     case Cause::take_off: {
         target->process_event(event, m_shared);
@@ -65,8 +93,11 @@ void Sequencer::step() noexcept
         m_done = true;
     } break;
 
+    case Cause::experience_fault: {
+        target->process_event(event, m_shared);
+    } break;
+
     default:
-        // TODO(djk): add/handle fault
         break;
     }
     if (not(m_done or m_shared.m_queue.empty())) {
@@ -74,10 +105,12 @@ void Sequencer::step() noexcept
     }
 }
 
-const AircraftType& Sequencer::pick_type(SimEntityId id) const noexcept
+const AircraftType& Sequencer::pick_type(SimEntityId id) noexcept
 {
-    // TODO(djk): This is one of two places where random numbers need to be used
-    return m_aircraft_types[(id - 1) % m_aircraft_types.size()];
+    if ((id <= m_aircraft_types.size()) or (m_shared.disable_faults)) {
+        return m_aircraft_types[(id - 1) % m_aircraft_types.size()];
+    }
+    return m_aircraft_types[m_shared.m_fault_model.random_index(m_aircraft_types.size() - 1)];
 }
 
 } // namespace ta

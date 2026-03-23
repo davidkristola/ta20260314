@@ -3,6 +3,7 @@
 #include "aircraft_type.hpp"
 
 #include <map>
+#include <set>
 
 namespace ta {
 
@@ -18,6 +19,8 @@ class Statistics {
     MilesType          m_accumulated_flight_miles    = 0.0;
     PassengerMilesType m_accumulated_passenger_miles = 0.0;
 
+    std::set<AircraftCountType> m_vehicles;
+
 public:
     Statistics() noexcept = default;
     explicit Statistics(const AircraftType& aircraft_type) noexcept;
@@ -27,7 +30,9 @@ public:
     ChargeSessionCountType total_charge_sessions() const noexcept;
     PassengerMilesType     total_passenger_miles() const noexcept;
     FaultCountType         total_faults() const noexcept;
+    AircraftCountType      total_vehicles() const noexcept;
 
+    void record_vehicle(SimEntityId id) noexcept;
     void record_fault() noexcept;
     void record_charging_session(HoursType hours) noexcept;
     void record_flight(HoursType hours, MilesType miles, PassengerCountType passengers) noexcept;

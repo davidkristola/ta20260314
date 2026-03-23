@@ -10,11 +10,12 @@
 #endif
 
 namespace {
-double compute_hourly_average(ta::FaultModel& model, ta::ProbabilityPerHourType probability, int samples = 1000000) {
+double compute_hourly_average(ta::FaultModel& model, ta::ProbabilityPerHourType probability, int samples = 1000000)
+{
     int faults_within_an_hour = 0;
 #ifdef DEEP_DIVE
-    double min_time = 1000.0;
-    double max_time = 0.0;
+    double             min_time = 1000.0;
+    double             max_time = 0.0;
     std::map<int, int> histogram;
 #endif
 
@@ -45,20 +46,41 @@ double compute_hourly_average(ta::FaultModel& model, ta::ProbabilityPerHourType 
 }
 } // namespace
 
-TEST(FaultModel, half) {
+TEST(FaultModel, half)
+{
     ta::FaultModel uut{};
-    const auto answer = compute_hourly_average(uut, 0.5);
+    const auto     answer = compute_hourly_average(uut, 0.5);
     EXPECT_NEAR(0.5, answer, 0.001);
 }
 
-TEST(FaultModel, third) {
+TEST(FaultModel, third)
+{
     ta::FaultModel uut{};
-    const auto answer = compute_hourly_average(uut, 0.3);
+    const auto     answer = compute_hourly_average(uut, 0.3);
     EXPECT_NEAR(0.3, answer, 0.001);
 }
 
-TEST(FaultModel, three_quarters) {
+TEST(FaultModel, three_quarters)
+{
     ta::FaultModel uut{};
-    const auto answer = compute_hourly_average(uut, 0.75);
+    const auto     answer = compute_hourly_average(uut, 0.75);
     EXPECT_NEAR(0.75, answer, 0.001);
+}
+
+TEST(FaultModel, random_index)
+{
+    ta::FaultModel uut{};
+    unsigned long  max = 0;
+    unsigned long  min = 20;
+    for (int n = 0; n != 1000; ++n) {
+        const auto index = uut.random_index(13);
+        if (index > max) {
+            max = index;
+        }
+        if (index < min) {
+            min = index;
+        }
+    }
+    EXPECT_EQ(13, max);
+    EXPECT_EQ(0, min);
 }

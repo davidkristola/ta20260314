@@ -51,23 +51,31 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
 {
     switch (e.cause()) {
     case Cause::take_off: {
-        m_state = AircraftState::flying;
-        // TODO(djk): inject faults
-        res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.recipient()});
+        m_state               = AircraftState::flying;
+        const auto fault_time = res.m_fault_model.time_to_next_fault(m_type.m_fault_probability_per_hour);
+        if ((not res.disable_faults) and (fault_time < flight_time())) {
+            // post a fault
+            res.m_queue.push({e.time() + fault_time, Cause::experience_fault, id()});
+        } else {
+            res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.recipient()});
+        }
         m_activity_start_time = e.time();
     } break;
+
     case Cause::land: {
         m_state = AircraftState::idle;
         fly_for(e.time() - m_activity_start_time, res);
         m_activity_start_time = e.time();
         res.m_queue.push({e.time(), Cause::land, res.m_vertiport_id, id()});
     } break;
+
     case Cause::start_charging: {
         m_state = AircraftState::charging;
         EventType event{e.time() + charge_time(), Cause::complete_charging, id()};
         res.m_queue.push(event);
         m_activity_start_time = e.time();
     } break;
+
     case Cause::complete_charging: {
         m_state = AircraftState::idle;
         charge_for(e.time() - m_activity_start_time, res);
@@ -75,6 +83,12 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
         // Now automatically fly again (this could be managed externally by some sort of dispatcher or at least
         // configurable).
         res.m_queue.push({e.time(), Cause::take_off, id(), res.m_vertiport_id});
+    } break;
+
+    case Cause::experience_fault: {
+        m_state = AircraftState::faulted;
+        auto& s = res.m_statistics.get(m_type.m_name);
+        s.record_fault();
     } break;
 
     default:

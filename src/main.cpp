@@ -18,14 +18,16 @@
 
 // https://extapps.ksc.nasa.gov/Reliability/Documents/170505_Risk_Failure_Probability_and_Failure_Rate.pdf
 
-unsigned long seed = 0U;
+unsigned long seed = std::random_device()();
 
 void process_command_line_arguments(const std::vector<std::string>& args)
 {
     for (size_t i = 1U; i < args.size(); ++i) {
         if (args[i] == "--seed" && i + 1 < args.size()) {
             std::stringstream seed_buffer(args[++i]);
-            if (seed_buffer >> seed) {
+            unsigned long     temp_seed = 0;
+            if (seed_buffer >> temp_seed) {
+                seed = temp_seed;
                 std::cout << " (Seed=" << seed << ")";
             } else {
                 std::cout << " (Invalid Seed='" << args[i] << "')";
@@ -76,29 +78,24 @@ constexpr ta::AircraftType ECHO = {.m_name                       = "Echo",
                                    .m_passenger_count            = 2,
                                    .m_fault_probability_per_hour = 0.61};
 
-struct Configuration {
-    std::vector<ta::AircraftType> aircraft_types{ALPHA, BRAVO, CHARLIE, DELTA, ECHO};
-    ta::AircraftCountType         ac       = 20;
-    ta::ChargerCountType          cc       = 3;
-    ta::HoursType                 run_time = 3.0;
-};
+namespace ta {} // namespace ta
 
-void show_statistics_for(const ta::AircraftType& vehicle_type, ta::Sequencer& simulation)
+void show_statistics_for(const ta::AircraftType& vehicle_type, const ta::Statistics& s)
 {
-    const ta::Statistics s{simulation.statistics(vehicle_type.m_name)};
     std::cout << "Statistics for " << vehicle_type.m_name << "\n";
     std::cout << "    average flight time per flight          : " << s.average_hours_per_flight() << "\n";
     std::cout << "    average distance traveled per flight    : " << s.average_miles_per_flight() << "\n";
     std::cout << "    average time charging per charge session: " << s.average_hours_per_charge() << "\n";
     std::cout << "    total number of faults                  : " << s.total_faults() << "\n";
     std::cout << "    total number of passenger miles         : " << s.total_passenger_miles() << "\n";
+    std::cout << "    total vehicles in sim                   : " << s.total_vehicles() << "\n";
 }
 
-void show_all_statistics(const Configuration& c, ta::Sequencer& simulation)
+void show_all_statistics(const ta::Configuration& c, ta::Sequencer& simulation)
 {
     std::cout << "\n******** Statistics ********\n";
     for (const auto& vehicle_type : c.aircraft_types) {
-        show_statistics_for(vehicle_type, simulation);
+        show_statistics_for(vehicle_type, simulation.statistics(vehicle_type.m_name));
     }
 }
 
@@ -106,13 +103,16 @@ int main(int argc, char* argv[])
 {
     std::vector<std::string> args(argv, argv + argc);
     process_command_line_arguments(args);
-    std::cout << "\nrunning:";
-    Configuration c;
-    ta::Sequencer simulation{c.aircraft_types, c.ac, c.cc, c.run_time};
+    std::cout << "\nrunning with seed " << seed << "\n";
+    ta::Configuration configuration;
+    configuration.aircraft_types = {ALPHA, BRAVO, CHARLIE, DELTA, ECHO};
+    configuration.seed           = seed;
+    ta::Sequencer simulation{configuration};
+    simulation.shared_resources().m_fault_model.seed(seed);
     while (not simulation.done()) {
         simulation.step();
     }
     std::cout << "\n";
-    show_all_statistics(c, simulation);
+    show_all_statistics(configuration, simulation);
     return 0;
 }
