@@ -1,4 +1,5 @@
 #pragma once
+/// @file
 
 #include "aircraft_type.hpp"
 #include "common_types.hpp"
@@ -8,6 +9,17 @@ namespace ta {
 
 enum class AircraftState { idle, charging, flying, faulted };
 
+/// @brief A representation of an eVTOL aircraft simulation object.
+/// @details This is a simulation entity with a unique ID and a type of aircraft.
+/// @startuml{aircraft_state_machine.png} "State Machine"
+/// [*] --> idle
+/// idle --> flying
+/// idle --> charging
+/// flying --> idle
+/// flying --> faulted
+/// charging --> idle
+/// faulted --> [*]
+/// @enduml
 class Aircraft : public SimEntity {
     AircraftType      m_type;
     KilowattHoursType m_current_charge;
@@ -15,6 +27,7 @@ class Aircraft : public SimEntity {
     HoursType         m_activity_start_time = 0.0;
 
 public:
+    /// Default constructor.
     Aircraft() noexcept
         : SimEntity()
         , m_type{}
@@ -22,10 +35,10 @@ public:
     {}
     Aircraft(AircraftType type_of_craft, SimEntityId id) noexcept;
 
-    // copy constructor
+    /// copy constructor
     Aircraft(const Aircraft& other) noexcept;
 
-    // move constructor
+    /// move constructor
     Aircraft(Aircraft&& other) noexcept;
 
     const AircraftType& get_type() const noexcept { return m_type; }

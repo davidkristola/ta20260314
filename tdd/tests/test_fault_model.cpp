@@ -46,6 +46,15 @@ double compute_hourly_average(ta::FaultModel& model, ta::ProbabilityPerHourType 
 }
 } // namespace
 
+TEST(mt19937, seeded_random_number_generator)
+{
+    std::mt19937 gen32;
+    gen32.discard(10000 - 1);
+    EXPECT_EQ(gen32(), 4123659995);
+    gen32.seed(1);
+    EXPECT_EQ(gen32(), 1791095845);
+}
+
 TEST(FaultModel, half)
 {
     ta::FaultModel uut{};
