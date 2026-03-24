@@ -27,7 +27,7 @@ void Vertiport::process_event(const EventType& e, SharedResources& res)
 
 void Vertiport::process_landing(const EventType& e, SharedResources& res)
 {
-    const auto aircraft_id = e.object();
+    const auto aircraft_id = e.secondary_object();
     if (charging() == capacity()) {
         m_waiting.emplace_back(aircraft_id);
     } else {

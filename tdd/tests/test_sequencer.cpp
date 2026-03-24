@@ -30,7 +30,12 @@ constexpr ta::HoursType charge_time(ta::AircraftType ac) { return ac.m_time_to_c
 
 TEST(Sequencer, initial_state)
 {
-    ta::Sequencer uut{{CONDOR, BUMBLE_BEE}, 2, 1, 1.0};
+    ta::Configuration configuration{.aircraft_types = {CONDOR, BUMBLE_BEE},
+                                    .aircraft_count = 2,
+                                    .charger_count  = 1,
+                                    .run_time       = 1.0,
+                                    .disable_faults = true};
+    ta::Sequencer     uut{configuration};
     EXPECT_FALSE(uut.done());
     EXPECT_EQ(2U, uut.aircraft_count());
     EXPECT_DOUBLE_EQ(0.0, uut.simulation_time());
@@ -40,7 +45,9 @@ TEST(Sequencer, initial_state)
 
 TEST(Sequencer, first_step)
 {
-    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
+    ta::Configuration configuration{
+        .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
+    ta::Sequencer uut{configuration};
     uut.shared_resources().disable_faults = true;
     uut.step();
     EXPECT_DOUBLE_EQ(flight_time(CONDOR), uut.simulation_time());
@@ -51,8 +58,9 @@ TEST(Sequencer, first_step)
 
 TEST(Sequencer, take_off_and_land)
 {
-    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    uut.shared_resources().disable_faults = true;
+    ta::Configuration configuration{
+        .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
+    ta::Sequencer uut{configuration};
     uut.step();
     uut.step();
     EXPECT_DOUBLE_EQ(flight_time(CONDOR), uut.simulation_time());
@@ -64,9 +72,10 @@ TEST(Sequencer, take_off_and_land)
 
 TEST(Sequencer, fly_and_charge)
 {
-    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    uut.shared_resources().disable_faults = true;
-    const auto& aircraft                  = uut.aircraft(1U);
+    ta::Configuration configuration{
+        .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
+    ta::Sequencer uut{configuration};
+    const auto&   aircraft = uut.aircraft(1U);
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -85,8 +94,9 @@ TEST(Sequencer, fly_and_charge)
 
 TEST(Sequencer, run_until_done)
 {
-    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    uut.shared_resources().disable_faults = true;
+    ta::Configuration configuration{
+        .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
+    ta::Sequencer uut{configuration};
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -99,8 +109,9 @@ TEST(Sequencer, run_until_done)
 
 TEST(Sequencer, dont_blow_up)
 {
-    ta::Sequencer uut{{CONDOR}, 1, 1, 1.0};
-    uut.shared_resources().disable_faults = true;
+    ta::Configuration configuration{
+        .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
+    ta::Sequencer uut{configuration};
     uut.step(); // takeoff event to aircraft
     uut.step(); // landing event to aircraft
     uut.step(); // landing event to vertiport
@@ -116,8 +127,12 @@ TEST(Sequencer, dont_blow_up)
 TEST(Sequencer, bigger_run)
 {
     constexpr ta::HoursType SIM_TIME = 5.0;
-    ta::Sequencer           uut{{CONDOR, BUMBLE_BEE}, 2, 2, SIM_TIME};
-    uut.shared_resources().disable_faults = true;
+    ta::Configuration       configuration{.aircraft_types = {CONDOR, BUMBLE_BEE},
+                                          .aircraft_count = 2,
+                                          .charger_count  = 2,
+                                          .run_time       = SIM_TIME,
+                                          .disable_faults = true};
+    ta::Sequencer           uut{configuration};
     while (not uut.done()) {
         uut.step();
     }

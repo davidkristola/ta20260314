@@ -57,7 +57,7 @@ void Aircraft::process_event(const EventType& e, SharedResources& res)
             // post a fault
             res.m_queue.push({e.time() + fault_time, Cause::experience_fault, id()});
         } else {
-            res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.recipient()});
+            res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.secondary_object()});
         }
         m_activity_start_time = e.time();
     } break;

@@ -30,9 +30,6 @@ class Sequencer {
     Vertiport                       m_vertiport;
 
 public:
-    Sequencer(std::vector<AircraftType> aircraft_types, AircraftCountType ac, ChargerCountType cc,
-              HoursType run_time) noexcept;
-
     Sequencer(Configuration configuration) noexcept;
 
     bool              done() const noexcept { return m_done; }

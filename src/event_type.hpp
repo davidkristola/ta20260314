@@ -4,28 +4,37 @@
 
 namespace ta {
 
+/// @brief An immutable object for storing and communicating events.
 class EventType {
-    HoursType   m_when = 0.0;
-    Cause       m_what;
-    SimEntityId m_who;
-    SimEntityId m_where;
+    HoursType   m_time = 0.0;
+    Cause       m_cause;
+    SimEntityId m_subject;
+    SimEntityId m_secondary_object;
 
 public:
-    EventType(HoursType time, Cause reason, SimEntityId who = InvalidSimEntityId,
-              SimEntityId where = InvalidSimEntityId) noexcept
-        : m_when(time)
-        , m_what(reason) // verb
-        , m_who(who)     // subject/agent
-        , m_where(where) // object/recipient
+    EventType(HoursType time, Cause cause, SimEntityId subject = InvalidSimEntityId,
+              SimEntityId secondary_object = InvalidSimEntityId) noexcept
+        : m_time(time)
+        , m_cause(cause)
+        , m_subject(subject)
+        , m_secondary_object(secondary_object)
     {}
-    HoursType   time() const noexcept { return m_when; }
-    Cause       cause() const noexcept { return m_what; }
-    SimEntityId aircraft() const noexcept { return m_who; }
-    SimEntityId target() const noexcept { return m_who; }
-    SimEntityId agent() const noexcept { return m_who; }
-    SimEntityId charger() const noexcept { return m_where; }
-    SimEntityId recipient() const noexcept { return m_where; }
-    SimEntityId object() const noexcept { return m_where; }
+
+    /// @brief Get the time of the event.
+    /// @return The time this event occurs.
+    HoursType time() const noexcept { return m_time; }
+
+    /// @brief Get the cause (reason, action) of the event.
+    /// @return The cause of the event.
+    Cause cause() const noexcept { return m_cause; }
+
+    /// @brief Get the subject (doer, effectuator) of the event.
+    /// @return The subject of the event.
+    SimEntityId subject() const noexcept { return m_subject; }
+
+    /// @brief Get the secondary (indirect) object of the event.
+    /// @return The secondary object or \c InvalidSimEntityId
+    SimEntityId secondary_object() const noexcept { return m_secondary_object; }
 };
 
 } // namespace ta

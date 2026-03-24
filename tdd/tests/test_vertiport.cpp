@@ -34,9 +34,9 @@ TEST(Vertiport, process_landing_nominal)
     // THEN -- there are free chargers so a start charging event is posted
     const auto event = sr.m_queue.pop();
     EXPECT_DOUBLE_EQ(0.1, event.time());
-    EXPECT_EQ(AC_1_ID, event.aircraft());
+    EXPECT_EQ(AC_1_ID, event.subject());
     EXPECT_EQ(ta::Cause::start_charging, event.cause());
-    EXPECT_EQ(VERTIPORT_ID, event.charger());
+    EXPECT_EQ(VERTIPORT_ID, event.secondary_object());
 
     EXPECT_EQ(0U, uut.charging());
     EXPECT_EQ(0U, uut.waiting());
@@ -115,9 +115,9 @@ TEST(Vertiport, process_landing_full)
     ASSERT_FALSE(sr.m_queue.empty());
     event = sr.m_queue.pop();
     EXPECT_DOUBLE_EQ(0.4, event.time());
-    EXPECT_EQ(AC_3_ID, event.aircraft());
+    EXPECT_EQ(AC_3_ID, event.subject());
     EXPECT_EQ(ta::Cause::start_charging, event.cause());
-    EXPECT_EQ(VERTIPORT_ID, event.charger());
+    EXPECT_EQ(VERTIPORT_ID, event.secondary_object());
 
     EXPECT_EQ(1U, uut.charging());
     EXPECT_EQ(0U, uut.waiting());

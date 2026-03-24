@@ -99,9 +99,9 @@ TEST(Aircraft, take_off)
     ASSERT_FALSE(sr.m_queue.empty());
     const auto event = sr.m_queue.pop();
     EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, event.time());
-    EXPECT_EQ(32U, event.aircraft());
+    EXPECT_EQ(32U, event.subject());
     EXPECT_EQ(ta::Cause::land, event.cause());
-    EXPECT_EQ(VERTIPORT_ID, event.recipient());
+    EXPECT_EQ(VERTIPORT_ID, event.secondary_object());
 }
 
 TEST(Aircraft, land)
@@ -116,7 +116,7 @@ TEST(Aircraft, land)
     ASSERT_FALSE(sr.m_queue.empty());
     event = sr.m_queue.pop();
     EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, event.time());
-    EXPECT_EQ(VERTIPORT_ID, event.target());
+    EXPECT_EQ(VERTIPORT_ID, event.subject());
     EXPECT_EQ(ta::Cause::land, event.cause());
-    EXPECT_EQ(32, event.object());
+    EXPECT_EQ(32, event.secondary_object());
 }
