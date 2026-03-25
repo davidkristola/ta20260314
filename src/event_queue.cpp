@@ -1,8 +1,11 @@
+/// @file
 #include "event_queue.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 namespace {
+/// Convert a @c Cause enumeration into a C-string.
 const char* image(ta::Cause c)
 {
     switch (c) {
@@ -23,6 +26,8 @@ const char* image(ta::Cause c)
     }
     return "unknown cause";
 }
+
+// TODO: Logging would be a useful addition.
 void output_event(std::string dir, ta::EventType event)
 {
 #ifdef DEBUG
@@ -34,24 +39,34 @@ void output_event(std::string dir, ta::EventType event)
 
 namespace ta {
 
-void EventQueue::push(EventType event) noexcept
+void EventQueue::push(EventType event)
 {
+    if (event.time() < m_earliest_allowed_time) {
+        throw std::runtime_error("Cannot push event into the past!");
+    }
     output_event("push", event);
     m_queue.push(event);
 }
 
 bool EventQueue::empty() const noexcept { return m_queue.empty(); }
 
-EventType EventQueue::pop() noexcept
+EventType EventQueue::pop()
 {
-    const auto event = m_queue.top();
+    if (empty()) {
+        throw std::runtime_error("Cannot pop from an empty queue!");
+    }
+    const auto event        = m_queue.top();
+    m_earliest_allowed_time = event.time();
     output_event("pop", event);
     m_queue.pop();
     return event;
 }
 
-HoursType EventQueue::top_time() const noexcept
+HoursType EventQueue::top_time() const
 {
+    if (empty()) {
+        throw std::runtime_error("Cannot peek at the next event time from an empty queue!");
+    }
     const auto event = m_queue.top();
     return event.time();
 }

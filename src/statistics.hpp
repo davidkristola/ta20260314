@@ -1,4 +1,5 @@
 #pragma once
+/// @file
 
 #include "aircraft_type.hpp"
 
@@ -7,6 +8,10 @@
 
 namespace ta {
 
+/// @brief Objects of this class are used for recording the activities of a single type of aircraft.
+/// There will be one instance of this class for each type of aircraft in a simulation run. See the
+/// @c StatisticsPool class used to hold the instances of this class.
+//
 class Statistics {
     std::string_view m_name = "";
 

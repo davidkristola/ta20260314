@@ -1,4 +1,5 @@
 #include "statistics.hpp"
+/// @file
 
 namespace ta {
 

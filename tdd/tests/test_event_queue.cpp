@@ -25,3 +25,19 @@ TEST(EventQueue, standard_use_case)
     EXPECT_DOUBLE_EQ(0.3, test_event.time());
     EXPECT_TRUE(uut.empty());
 }
+
+TEST(EventQueue, error_use_case_empty)
+{
+    ta::EventQueue uut;
+    EXPECT_ANY_THROW(const auto nothing_1 = uut.pop());
+    EXPECT_ANY_THROW(const auto time = uut.top_time());
+}
+
+TEST(EventQueue, error_push_event_into_the_past)
+{
+    ta::EventQueue uut;
+    uut.push({0.3, ta::Cause::end_of_simulation});
+    uut.push({0.2, ta::Cause::take_off, 8U});
+    (void)uut.pop(); // time is now 0.2 hours.
+    EXPECT_ANY_THROW(uut.push({0.1, ta::Cause::take_off, 4U}));
+}
