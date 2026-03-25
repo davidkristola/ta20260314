@@ -3,34 +3,42 @@
 #include "gtest/gtest.h"
 
 namespace {
-constexpr ta::KilowattHoursType CAPACITY    = 300.0;
-constexpr ta::KilowattHoursPerMileType WORK = 1.0;
-constexpr ta::MilesPerHourType CRUISE_SPEED = 100.0;
-constexpr ta::HoursType CHARGE_TIME         = 0.5;
-constexpr ta::AircraftType SPARROW          = {.m_name                       = "Sparrow",
-                                               .m_cruise_speed               = CRUISE_SPEED,
-                                               .m_battery_capacity           = CAPACITY,
-                                               .m_time_to_charge             = CHARGE_TIME,
-                                               .m_energy_used_at_cruise      = WORK,
-                                               .m_passenger_count            = 3U,
-                                               .m_fault_probability_per_hour = 0.13};
+constexpr ta::KilowattHoursType        CAPACITY     = 300.0;
+constexpr ta::KilowattHoursPerMileType WORK         = 1.0;
+constexpr ta::MilesPerHourType         CRUISE_SPEED = 100.0;
+constexpr ta::HoursType                CHARGE_TIME  = 0.5;
+constexpr ta::AircraftType             SPARROW      = {.m_name                       = "Sparrow",
+                                                       .m_cruise_speed               = CRUISE_SPEED,
+                                                       .m_battery_capacity           = CAPACITY,
+                                                       .m_time_to_charge             = CHARGE_TIME,
+                                                       .m_energy_used_at_cruise      = WORK,
+                                                       .m_passenger_count            = 3U,
+                                                       .m_fault_probability_per_hour = 0.13};
 } // namespace
 
-TEST(Statistics, initial_state) {
+TEST(Statistics, initial_state)
+{
     ta::Statistics uut{SPARROW};
+    EXPECT_EQ(SPARROW.m_name, uut.name());
     EXPECT_EQ(0U, uut.total_flights());
-    EXPECT_DOUBLE_EQ(0.0, uut.total_passenger_miles());
+    EXPECT_EQ(0U, uut.total_charge_sessions());
     EXPECT_EQ(0U, uut.total_faults());
+    EXPECT_DOUBLE_EQ(0.0, uut.total_passenger_miles());
+    EXPECT_DOUBLE_EQ(0.0, uut.average_hours_per_flight());
+    EXPECT_DOUBLE_EQ(0.0, uut.average_miles_per_flight());
+    EXPECT_DOUBLE_EQ(0.0, uut.average_hours_per_charge());
 }
 
-TEST(Statistics, fault_count) {
+TEST(Statistics, fault_count)
+{
     ta::Statistics uut{SPARROW};
     EXPECT_EQ(0U, uut.total_faults());
     uut.record_fault();
     EXPECT_EQ(1U, uut.total_faults());
 }
 
-TEST(Statistics, charging_sessions) {
+TEST(Statistics, charging_sessions)
+{
     ta::Statistics uut{SPARROW};
     EXPECT_EQ(0U, uut.total_charge_sessions());
     EXPECT_DOUBLE_EQ(0.0, uut.average_hours_per_charge());
@@ -48,7 +56,8 @@ TEST(Statistics, charging_sessions) {
     EXPECT_DOUBLE_EQ((1.2 / 3.0), uut.average_hours_per_charge());
 }
 
-TEST(Statistics, flights) {
+TEST(Statistics, flights)
+{
     ta::Statistics uut{SPARROW};
 
     EXPECT_EQ(0U, uut.total_flights());

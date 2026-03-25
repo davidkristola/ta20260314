@@ -1,3 +1,4 @@
+/// @file
 #include "aircraft.hpp"
 #include "event_queue.hpp"
 #include "event_type.hpp"
@@ -25,75 +26,103 @@ Aircraft::Aircraft(Aircraft&& other) noexcept
     , m_state(other.m_state)
 {}
 
-void Aircraft::fly_for(HoursType time, SharedResources& res) noexcept
+void Aircraft::fly_for(HoursType time, Statistics& statistics) noexcept
 {
     const MilesType distance = (time * m_type.m_cruise_speed);
     m_current_charge -= (distance * m_type.m_energy_used_at_cruise);
     if (m_current_charge < 0.0) {
         m_current_charge = 0.0;
     }
-    auto& s = res.m_statistics.get(m_type.m_name);
-    s.record_flight(time, distance, m_type.m_passenger_count);
+    statistics.record_flight(time, distance, m_type.m_passenger_count);
 }
 
-void Aircraft::charge_for(HoursType time, SharedResources& res) noexcept
+void Aircraft::charge_for(HoursType time, Statistics& statistics) noexcept
 {
     const auto charge_amount = (time * m_type.charge_rate());
     m_current_charge += charge_amount;
     if (m_current_charge > m_type.m_battery_capacity) {
         m_current_charge = m_type.m_battery_capacity;
     }
-    auto& s = res.m_statistics.get(m_type.m_name);
-    s.record_charging_session(time);
+    statistics.record_charging_session(time);
 }
 
-void Aircraft::process_event(const EventType& e, SharedResources& res)
+void Aircraft::process_event(const EventType& event, SharedResources& resources)
 {
-    switch (e.cause()) {
+    switch (event.cause()) {
     case Cause::take_off: {
-        m_state               = AircraftState::flying;
-        const auto fault_time = res.m_fault_model.time_to_next_fault(m_type.m_fault_probability_per_hour);
-        if ((not res.disable_faults) and (fault_time < flight_time())) {
-            // post a fault
-            res.m_queue.push({e.time() + fault_time, Cause::experience_fault, id()});
-        } else {
-            res.m_queue.push({e.time() + flight_time(), Cause::land, id(), e.secondary_object()});
-        }
-        m_activity_start_time = e.time();
+        process_take_off(event, resources);
     } break;
 
     case Cause::land: {
-        m_state = AircraftState::idle;
-        fly_for(e.time() - m_activity_start_time, res);
-        m_activity_start_time = e.time();
-        res.m_queue.push({e.time(), Cause::land, res.m_vertiport_id, id()});
+        process_landing(event, resources);
     } break;
 
     case Cause::start_charging: {
-        m_state = AircraftState::charging;
-        EventType event{e.time() + charge_time(), Cause::complete_charging, id()};
-        res.m_queue.push(event);
-        m_activity_start_time = e.time();
+        process_charging(event, resources);
     } break;
 
     case Cause::complete_charging: {
-        m_state = AircraftState::idle;
-        charge_for(e.time() - m_activity_start_time, res);
-        m_activity_start_time = e.time();
-        // Now automatically fly again (this could be managed externally by some sort of dispatcher or at least
-        // configurable).
-        res.m_queue.push({e.time(), Cause::take_off, id(), res.m_vertiport_id});
+        process_charging_complete(event, resources);
     } break;
 
     case Cause::experience_fault: {
-        m_state = AircraftState::faulted;
-        auto& s = res.m_statistics.get(m_type.m_name);
-        s.record_fault();
+        process_fault(resources.aircraft_statistics(m_type.m_name));
     } break;
 
     default:
         break;
     }
+}
+
+void Aircraft::process_fault(Statistics& statistics)
+{
+    // TODO: Should this record flight time, miles, and passenger miles? Assume not until resolved.
+    m_state = AircraftState::faulted;
+    statistics.record_fault();
+}
+
+void Aircraft::process_charging_complete(const EventType& event, SharedResources& resources)
+{
+    m_state = AircraftState::idle;
+    charge_for(event.time() - m_activity_start_time, resources.aircraft_statistics(m_type.m_name));
+    m_activity_start_time = event.time();
+    // Now automatically fly again (this could be managed externally by some sort of dispatcher or at least
+    // configurable).
+    resources.push({event.time(), Cause::take_off, id(), resources.vertiport_id()});
+}
+
+void Aircraft::process_charging(const EventType& event, SharedResources& resources)
+{
+    m_state = AircraftState::charging;
+    resources.push({event.time() + charge_time(), Cause::complete_charging, id()});
+    m_activity_start_time = event.time();
+}
+
+void Aircraft::process_landing(const EventType& event, SharedResources& resources)
+{
+    m_state = AircraftState::idle;
+    fly_for(event.time() - m_activity_start_time, resources.aircraft_statistics(m_type.m_name));
+    m_activity_start_time = event.time();
+    resources.push({event.time(), Cause::land, resources.vertiport_id(), id()});
+}
+
+void Aircraft::process_take_off(const EventType& event, SharedResources& resources)
+{
+    m_state               = AircraftState::flying;
+    const auto fault_time = next_fault_time(resources);
+    if (resources.faults_enabled() and (fault_time < flight_time())) {
+        // post a fault
+        resources.push({event.time() + fault_time, Cause::experience_fault, id()});
+    } else {
+        // post the landing
+        resources.push({event.time() + flight_time(), Cause::land, id(), event.secondary_object()});
+    }
+    m_activity_start_time = event.time();
+}
+
+HoursType Aircraft::next_fault_time(SharedResources& resources)
+{
+    return resources.m_fault_model.time_to_next_fault(m_type.m_fault_probability_per_hour);
 }
 
 } // namespace ta

@@ -1,4 +1,5 @@
 #pragma once
+/// @file
 
 #include "common_types.hpp"
 
@@ -8,26 +9,39 @@ namespace ta {
 class EventType;
 class SharedResources;
 
+/// Base class for simulation entities.
+/// This class isn't completely abstract because it holds an identifier for
+/// the simulated entity.
 class SimEntity {
-protected:
     SimEntityId m_id = InvalidSimEntityId;
 
-public:
-    SimEntity() noexcept {}
+protected:
+    /// Main constructor.
     explicit SimEntity(SimEntityId id) noexcept
         : m_id(id)
     {}
+
+public:
+    /// @brief Default constructor.
+    SimEntity() noexcept {}
+
+    /// Virtual destructor.
     virtual ~SimEntity() = default;
 
-    // copy constructor
+    /// Copy constructor.
     SimEntity(const SimEntity& other) noexcept = default;
 
-    // move constructor
+    /// Move constructor.
     SimEntity(SimEntity&& other) noexcept = default;
 
+    /// @brief Simulation entity identity.
+    /// @return Unique ID
     SimEntityId id() const noexcept { return m_id; }
 
-    virtual void process_event(const EventType& e, SharedResources& res) = 0;
+    /// @brief Virtual abstract function to deliver an @p event to the simulated entity.
+    /// @param event
+    /// @param resources
+    virtual void process_event(const EventType& event, SharedResources& resources) = 0;
 };
 
 } // namespace ta

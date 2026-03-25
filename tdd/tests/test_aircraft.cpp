@@ -5,19 +5,20 @@
 #include "gtest/gtest.h"
 
 namespace {
-constexpr ta::KilowattHoursType        ENERGY           = 500.0;
-constexpr ta::KilowattHoursPerMileType WORK             = 1.0;
-constexpr ta::MilesPerHourType         CRUISE_SPEED     = 100.0;
-constexpr ta::HoursType                CHARGE_TIME      = 0.5;
-constexpr ta::AircraftType             BUMBLE_BEE       = {.m_name                       = "Bumble Bee",
-                                                           .m_cruise_speed               = CRUISE_SPEED,
-                                                           .m_battery_capacity           = ENERGY,
-                                                           .m_time_to_charge             = CHARGE_TIME,
-                                                           .m_energy_used_at_cruise      = WORK,
-                                                           .m_passenger_count            = 2U,
-                                                           .m_fault_probability_per_hour = 0.13};
-constexpr ta::HoursType                FULL_FLIGHT_TIME = (ENERGY / WORK) / CRUISE_SPEED;
-constexpr ta::SimEntityId              VERTIPORT_ID     = 88U;
+constexpr ta::KilowattHoursType        ENERGY            = 500.0;
+constexpr ta::KilowattHoursPerMileType WORK              = 1.0;
+constexpr ta::MilesPerHourType         CRUISE_SPEED      = 100.0;
+constexpr ta::HoursType                CHARGE_TIME       = 0.5;
+constexpr ta::AircraftType             BUMBLE_BEE        = {.m_name                       = "Bumble Bee",
+                                                            .m_cruise_speed               = CRUISE_SPEED,
+                                                            .m_battery_capacity           = ENERGY,
+                                                            .m_time_to_charge             = CHARGE_TIME,
+                                                            .m_energy_used_at_cruise      = WORK,
+                                                            .m_passenger_count            = 2U,
+                                                            .m_fault_probability_per_hour = 0.13};
+constexpr ta::HoursType                FULL_FLIGHT_TIME  = (ENERGY / WORK) / CRUISE_SPEED;
+constexpr ta::HoursType                FULL_FLIGHT_MILES = CRUISE_SPEED * FULL_FLIGHT_TIME;
+constexpr ta::SimEntityId              VERTIPORT_ID      = 88U;
 } // namespace
 
 TEST(Aircraft, init)
@@ -50,41 +51,73 @@ TEST(Aircraft, charge_time)
 
 TEST(Aircraft, charge_time_empty)
 {
-    ta::Aircraft        uut{BUMBLE_BEE, 32U};
-    ta::SharedResources sr{};
-    uut.fly_for(FULL_FLIGHT_TIME, sr);
+    ta::Aircraft   uut{BUMBLE_BEE, 32U};
+    ta::Statistics stats{};
+    uut.fly_for(FULL_FLIGHT_TIME, stats);
     EXPECT_DOUBLE_EQ(uut.current_charge(), 0.0);
     EXPECT_DOUBLE_EQ(uut.charge_time(), CHARGE_TIME);
+
+    EXPECT_EQ(1, stats.total_flights());
+    EXPECT_EQ(0U, stats.total_charge_sessions());
+    EXPECT_EQ(0U, stats.total_faults());
+    EXPECT_DOUBLE_EQ((FULL_FLIGHT_MILES) * 2.0, stats.total_passenger_miles());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, stats.average_hours_per_flight());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_MILES, stats.average_miles_per_flight());
+    EXPECT_DOUBLE_EQ(0.0, stats.average_hours_per_charge());
 }
 
 TEST(Aircraft, charge_time_half_empty)
 {
-    ta::Aircraft        uut{BUMBLE_BEE, 32U};
-    ta::SharedResources sr{};
-    uut.fly_for(FULL_FLIGHT_TIME / 2.0, sr);
+    ta::Aircraft   uut{BUMBLE_BEE, 32U};
+    ta::Statistics stats{};
+    uut.fly_for(FULL_FLIGHT_TIME / 2.0, stats);
     EXPECT_DOUBLE_EQ(uut.current_charge(), (ENERGY / 2.0));
     EXPECT_DOUBLE_EQ(uut.charge_time(), (CHARGE_TIME / 2.0));
+
+    EXPECT_EQ(1, stats.total_flights());
+    EXPECT_EQ(0U, stats.total_charge_sessions());
+    EXPECT_EQ(0U, stats.total_faults());
+    EXPECT_DOUBLE_EQ((FULL_FLIGHT_MILES / 2.0) * 2.0, stats.total_passenger_miles());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME / 2.0, stats.average_hours_per_flight());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_MILES / 2.0, stats.average_miles_per_flight());
+    EXPECT_DOUBLE_EQ(0.0, stats.average_hours_per_charge());
 }
 
 TEST(Aircraft, cumulative_flight_time)
 {
-    ta::Aircraft        uut{BUMBLE_BEE, 32U};
-    ta::SharedResources sr{};
-    uut.fly_for(FULL_FLIGHT_TIME / 2.0, sr);
-    uut.fly_for(FULL_FLIGHT_TIME / 2.0, sr);
+    ta::Aircraft   uut{BUMBLE_BEE, 32U};
+    ta::Statistics stats{};
+    uut.fly_for(FULL_FLIGHT_TIME / 2.0, stats);
+    uut.fly_for(FULL_FLIGHT_TIME / 2.0, stats);
     EXPECT_DOUBLE_EQ(uut.current_charge(), 0.0);
     EXPECT_DOUBLE_EQ(uut.charge_time(), CHARGE_TIME);
+
+    EXPECT_EQ(2, stats.total_flights());
+    EXPECT_EQ(0U, stats.total_charge_sessions());
+    EXPECT_EQ(0U, stats.total_faults());
+    EXPECT_DOUBLE_EQ((FULL_FLIGHT_MILES) * 2.0, stats.total_passenger_miles());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME / 2.0, stats.average_hours_per_flight());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_MILES / 2.0, stats.average_miles_per_flight());
+    EXPECT_DOUBLE_EQ(0.0, stats.average_hours_per_charge());
 }
 
 TEST(Aircraft, charging_half)
 {
-    ta::Aircraft        uut{BUMBLE_BEE, 32U};
-    ta::SharedResources sr{};
-    uut.fly_for(FULL_FLIGHT_TIME, sr);
+    ta::Aircraft   uut{BUMBLE_BEE, 32U};
+    ta::Statistics stats{};
+    uut.fly_for(FULL_FLIGHT_TIME, stats);
     EXPECT_DOUBLE_EQ(uut.current_charge(), 0.0);
-    uut.charge_for(CHARGE_TIME / 2.0, sr);
+    uut.charge_for(CHARGE_TIME / 2.0, stats);
 
     EXPECT_DOUBLE_EQ(uut.charge_time(), CHARGE_TIME / 2.0);
+
+    EXPECT_EQ(1, stats.total_flights());
+    EXPECT_EQ(1, stats.total_charge_sessions());
+    EXPECT_EQ(0U, stats.total_faults());
+    EXPECT_DOUBLE_EQ((FULL_FLIGHT_MILES) * 2.0, stats.total_passenger_miles());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_TIME, stats.average_hours_per_flight());
+    EXPECT_DOUBLE_EQ(FULL_FLIGHT_MILES, stats.average_miles_per_flight());
+    EXPECT_DOUBLE_EQ(CHARGE_TIME / 2.0, stats.average_hours_per_charge());
 }
 
 TEST(Aircraft, take_off)

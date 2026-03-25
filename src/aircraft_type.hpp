@@ -1,4 +1,5 @@
 #pragma once
+/// @file
 
 #include "common_types.hpp"
 
@@ -6,6 +7,7 @@
 
 namespace ta {
 
+/// Type to hold the unchanging information about a class of aircraft.
 // TODO(djk): make this an immutable class
 struct AircraftType {
     std::string_view         m_name                       = "";
