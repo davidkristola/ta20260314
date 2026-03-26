@@ -45,7 +45,9 @@ The executable is not deployed by the CMake build script. The executable must ru
 src/build/technical_assessment
 ```
 
-No command line arguments are needed, but a number have been provided. Use `--help` to see the list.
+No command line arguments are needed, but a number have been provided. Use `--help` to see the list. Without command line arguments,
+the simulation will randomly select 20 aircraft (picked from the built in 5 types) (see assumption #7), create 3 chargers, and run
+for 3 simulated hours.
 
 ```text
 command line options:
@@ -56,3 +58,68 @@ command line options:
  --cc #    set the sim charger count to # (unsigned int in decimal).
  --df      disable faults.
 ```
+
+# Output
+
+Typical output will look like this:
+```text
+$ src/build/technical_assessment
+
+running with seed 3038430942
+
+
+******** Statistics ********
+Statistics for Alpha
+    average flight time per flight          : 1.66667
+    average distance traveled per flight    : 200
+    average time charging per charge session: 0.6
+    total number of faults                  : 3
+    total number of passenger miles         : 1600
+    total vehicles in sim                   : 4
+Statistics for Bravo
+    average flight time per flight          : 0.666667
+    average distance traveled per flight    : 66.6667
+    average time charging per charge session: 0.2
+    total number of faults                  : 0
+    total number of passenger miles         : 6000
+    total vehicles in sim                   : 6
+Statistics for Charlie
+    average flight time per flight          : 0.625
+    average distance traveled per flight    : 100
+    average time charging per charge session: 0.8
+    total number of faults                  : 0
+    total number of passenger miles         : 1200
+    total vehicles in sim                   : 2
+Statistics for Delta
+    average flight time per flight          : 1.66667
+    average distance traveled per flight    : 150
+    average time charging per charge session: 0.62
+    total number of faults                  : 2
+    total number of passenger miles         : 600
+    total vehicles in sim                   : 3
+Statistics for Echo
+    average flight time per flight          : 0.862069
+    average distance traveled per flight    : 25.8621
+    average time charging per charge session: 0.3
+    total number of faults                  : 5
+    total number of passenger miles         : 155.172
+    total vehicles in sim                   : 5
+```
+
+ As you can see in this run, 3 out of 4 Alpha vehicles experienced faults, and 5 out of 5 Echo vehicles also experienced faults.
+
+ # Future Modifications
+
+ This is an unordered list of "nice to have" features:
+ * Logging
+ * Some sort of dispatcher model so that all aircraft don't fly until their batteries are depleted
+ * Multiple vertiport models to dispatch aircraft to and from
+ * Better statistics about charger wait time
+ * Different types of chargers (faster, slower)
+ * Better statistics about factors that impact costs and income
+
+ # Design
+
+ ## SimEntity
+
+![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/tree/main/doc_inc/classta_1_1_sim_entity__inherit__graph.png)
