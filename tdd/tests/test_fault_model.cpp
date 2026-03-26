@@ -79,8 +79,8 @@ TEST(FaultModel, three_quarters)
 TEST(FaultModel, random_index)
 {
     ta::FaultModel uut{};
-    unsigned long  max = 0;
-    unsigned long  min = 20;
+    std::size_t    max = 0;
+    std::size_t    min = 20;
     for (int n = 0; n != 1000; ++n) {
         const auto index = uut.random_index(13);
         if (index > max) {

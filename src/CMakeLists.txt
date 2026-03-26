@@ -10,10 +10,11 @@ set(source_files
     fault_model.cpp
     sequencer.cpp
     vertiport.cpp
+    configuration.cpp
 )
 
 add_executable(technical_assessment main.cpp "${source_files}")
-
+target_compile_options(technical_assessment PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Wconversion)
 target_include_directories(technical_assessment PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )

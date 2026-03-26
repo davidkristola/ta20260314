@@ -27,22 +27,22 @@ using PassengerMilesType       = double;
 ///@}
 
 /// This type is used to count passengers.
-using PassengerCountType = unsigned int;
+using PassengerCountType = unsigned long int;
 
 /// This type is used to count flights.
-using FlightCountType = unsigned int;
+using FlightCountType = unsigned long int;
 
 /// This type is used to count how many times an aircraft has a fault.
-using FaultCountType = unsigned int;
+using FaultCountType = unsigned long int;
 
 /// This type is used to count how many times an aircraft charges.
-using ChargeSessionCountType = unsigned int;
+using ChargeSessionCountType = unsigned long int;
 
 /// This type is used to count aircraft.
-using AircraftCountType = unsigned int;
+using AircraftCountType = unsigned long int;
 
 /// This type is used to count chargers.
-using ChargerCountType = unsigned int;
+using ChargerCountType = unsigned long int;
 
 /// This type is used to seed a random number generator.
 using SeedType = unsigned int;

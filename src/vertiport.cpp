@@ -14,7 +14,7 @@ void Vertiport::process_event(const EventType& e, SharedResources& res)
         process_landing(e, res);
     } break;
     case Cause::start_charging: {
-        start_charging(e, res);
+        start_charging();
     } break;
     case Cause::complete_charging: {
         complete_charging(e, res);
@@ -37,7 +37,7 @@ void Vertiport::process_landing(const EventType& e, SharedResources& res)
     }
 }
 
-void Vertiport::start_charging(const EventType& e, SharedResources& res) { m_in_use += 1; }
+void Vertiport::start_charging() { m_in_use += 1; }
 
 void Vertiport::complete_charging(const EventType& e, SharedResources& res)
 {

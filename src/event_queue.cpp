@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 namespace {
+#ifdef DEBUG
 /// Convert a @c Cause enumeration into a C-string.
 const char* image(ta::Cause c)
 {
@@ -26,6 +27,7 @@ const char* image(ta::Cause c)
     }
     return "unknown cause";
 }
+#endif
 
 // TODO: Logging would be a useful addition.
 void output_event(std::string dir, ta::EventType event)
@@ -33,6 +35,9 @@ void output_event(std::string dir, ta::EventType event)
 #ifdef DEBUG
     std::cout << "Event Queue " << dir << " at " << event.time() << " " << image(event.cause())
               << " subject=" << event.agent() << " object=" << event.object() << "\n";
+#else
+    (void)dir;
+    (void)event;
 #endif
 }
 } // namespace

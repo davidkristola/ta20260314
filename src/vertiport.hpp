@@ -24,7 +24,7 @@ public:
     ChargerCountType waiting() const noexcept { return m_waiting.size(); }
 
     void process_landing(const EventType& e, SharedResources& res);
-    void start_charging(const EventType& e, SharedResources& res);
+    void start_charging();
     void complete_charging(const EventType& e, SharedResources& res);
 };
 

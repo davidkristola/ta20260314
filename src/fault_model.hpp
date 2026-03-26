@@ -3,6 +3,7 @@
 
 #include "common_types.hpp"
 
+#include <cstddef>
 #include <random>
 
 namespace ta {
@@ -25,9 +26,9 @@ class FaultModel {
 
 public:
     FaultModel() noexcept;
-    void          seed(unsigned long seed) noexcept;
-    HoursType     time_to_next_fault(ProbabilityPerHourType probability) noexcept;
-    unsigned long random_index(unsigned long upper_bound) noexcept;
+    void        seed(unsigned int seed) noexcept;
+    HoursType   time_to_next_fault(ProbabilityPerHourType probability) noexcept;
+    std::size_t random_index(int upper_bound) noexcept;
 };
 
 } // namespace ta

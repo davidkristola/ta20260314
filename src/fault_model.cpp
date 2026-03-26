@@ -7,7 +7,7 @@ FaultModel::FaultModel() noexcept
     : m_generator()
 {}
 
-void FaultModel::seed(unsigned long seed) noexcept { m_generator.seed(seed); }
+void FaultModel::seed(unsigned int seed) noexcept { m_generator.seed(seed); }
 
 /// @brief Compute a time to the next fault.
 /// Compute a time to the next fault given an aircraft's probability-of-failure-per-hour
@@ -24,10 +24,10 @@ HoursType FaultModel::time_to_next_fault(ProbabilityPerHourType probability) noe
     return distribution(m_generator);
 }
 
-unsigned long FaultModel::random_index(unsigned long upper_bound) noexcept
+std::size_t FaultModel::random_index(int upper_bound) noexcept
 {
     std::uniform_int_distribution<> distribution(0, upper_bound);
-    return distribution(m_generator);
+    return static_cast<std::size_t>(distribution(m_generator));
 }
 
 } // namespace ta

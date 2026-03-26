@@ -9,7 +9,6 @@ constexpr ta::SimEntityId VERTIPORT_ID = 88U;
 constexpr ta::SimEntityId AC_1_ID      = 1U;
 constexpr ta::SimEntityId AC_2_ID      = 2U;
 constexpr ta::SimEntityId AC_3_ID      = 3U;
-constexpr ta::SimEntityId AC_4_ID      = 4U;
 } // namespace
 
 TEST(Vertiport, init)
@@ -29,7 +28,7 @@ TEST(Vertiport, process_landing_nominal)
     ta::EventType landing{0.1, ta::Cause::land, VERTIPORT_ID, AC_1_ID};
 
     // WHEN -- AC_1 lands
-    uut.process_landing(landing, sr);
+    uut.process_event(landing, sr);
 
     // THEN -- there are free chargers so a start charging event is posted
     const auto event = sr.m_queue.pop();
@@ -51,7 +50,7 @@ TEST(Vertiport, start_charging_nominal)
     ta::EventType charging{0.1, ta::Cause::start_charging, VERTIPORT_ID, AC_1_ID};
 
     // WHEN -- AC_1 starts charging
-    uut.start_charging(charging, sr);
+    uut.process_event(charging, sr);
 
     // THEN -- one is charging (no new events are posted)
     EXPECT_TRUE(sr.m_queue.empty());
@@ -65,13 +64,13 @@ TEST(Vertiport, stop_charging_nominal)
     ta::Vertiport       uut{VERTIPORT_ID, 3U};
     ta::SharedResources sr{};
     ta::EventType       charging{0.1, ta::Cause::start_charging, VERTIPORT_ID, AC_1_ID};
-    uut.start_charging(charging, sr);
+    uut.process_event(charging, sr);
 
     // GIVEN -- a complete charging event sent to the vertiport
     ta::EventType complete{0.2, ta::Cause::complete_charging, VERTIPORT_ID, AC_1_ID};
 
     // WHEN -- AC_1 completes charging
-    uut.complete_charging(complete, sr);
+    uut.process_event(complete, sr);
 
     // THEN -- none are charging (no new events are posted)
     EXPECT_TRUE(sr.m_queue.empty());
@@ -87,20 +86,20 @@ TEST(Vertiport, process_landing_full)
 
     // GIVEN -- two are charging (the vertiport is full)
     ta::EventType landing{0.1, ta::Cause::land, VERTIPORT_ID, AC_1_ID};
-    uut.process_landing(landing, sr);
+    uut.process_event(landing, sr);
     ta::EventType event = sr.m_queue.pop();
     ta::EventType charging{0.1, ta::Cause::start_charging, VERTIPORT_ID, AC_1_ID};
-    uut.start_charging(charging, sr);
+    uut.process_event(charging, sr);
     landing = {0.2, ta::Cause::land, VERTIPORT_ID, AC_2_ID};
-    uut.process_landing(landing, sr);
+    uut.process_event(landing, sr);
     event    = sr.m_queue.pop();
     charging = {0.2, ta::Cause::start_charging, VERTIPORT_ID, AC_2_ID};
-    uut.start_charging(charging, sr);
+    uut.process_event(charging, sr);
     EXPECT_EQ(2U, uut.charging());
 
     // WHEN -- AC_3 lands
     landing = {0.3, ta::Cause::land, VERTIPORT_ID, AC_3_ID};
-    uut.process_landing(landing, sr);
+    uut.process_event(landing, sr);
 
     // THEN -- There are no free chargers so no charging event is sent to AC_3
     EXPECT_TRUE(sr.m_queue.empty());
@@ -109,7 +108,7 @@ TEST(Vertiport, process_landing_full)
 
     // AND WHEN -- AC_1 completes charging
     ta::EventType complete{0.4, ta::Cause::complete_charging, VERTIPORT_ID, AC_1_ID};
-    uut.complete_charging(complete, sr);
+    uut.process_event(complete, sr);
 
     // THEN -- a charger frees up so a start charging is sent to AC_3
     ASSERT_FALSE(sr.m_queue.empty());

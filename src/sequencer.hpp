@@ -1,7 +1,9 @@
 #pragma once
+/// @file
 
 #include "aircraft.hpp"
 #include "common_types.hpp"
+#include "configuration.hpp"
 #include "event_queue.hpp"
 #include "shared_resources.hpp"
 #include "statistics.hpp"
@@ -11,15 +13,6 @@
 #include <vector>
 
 namespace ta {
-
-struct Configuration {
-    std::vector<ta::AircraftType> aircraft_types;
-    AircraftCountType             aircraft_count = 20;
-    ChargerCountType              charger_count  = 3;
-    HoursType                     run_time       = 3.0;
-    SeedType                      seed           = 0U;
-    bool                          disable_faults = false;
-};
 
 class Sequencer {
     std::vector<AircraftType>       m_aircraft_types;

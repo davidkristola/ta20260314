@@ -11,9 +11,13 @@ namespace ta {
 /// @brief A time-based priority queue for storing events.
 //
 class EventQueue {
-    /// @brief Operator that defines the sort order (earliest time first) for the queue.
+    /// @brief Callable that defines the sort order (earliest time first) for the queue.
     //
-    struct {
+    struct CallableOperatorForSortingEvents {
+        /// @brief Operator that defines the sort order (earliest time first) for the queue.
+        /// @param l The left side of left > right
+        /// @param r The right side of left > right
+        /// @return Boolean
         bool operator()(const EventType& l, const EventType& r) const { return l.time() > r.time(); }
     } LowestFirst;
 

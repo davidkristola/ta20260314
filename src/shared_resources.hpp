@@ -14,7 +14,8 @@ namespace ta {
 /// to construct each entity with the resources it needs, or to provide
 /// a singleton to serve up the resource when and where it is needed.
 //
-struct SharedResources {
+class SharedResources {
+public:
     StatisticsPool m_statistics;
     EventQueue     m_queue;
     SimEntityId    m_vertiport_id = InvalidSimEntityId;

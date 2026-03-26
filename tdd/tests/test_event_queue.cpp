@@ -29,8 +29,8 @@ TEST(EventQueue, standard_use_case)
 TEST(EventQueue, error_use_case_empty)
 {
     ta::EventQueue uut;
-    EXPECT_ANY_THROW(const auto nothing_1 = uut.pop());
-    EXPECT_ANY_THROW(const auto time = uut.top_time());
+    EXPECT_ANY_THROW((void)uut.pop());
+    EXPECT_ANY_THROW((void)uut.top_time());
 }
 
 TEST(EventQueue, error_push_event_into_the_past)

@@ -69,7 +69,7 @@ const AircraftType& Sequencer::pick_type(SimEntityId id) noexcept
     if ((id <= m_aircraft_types.size()) or (m_shared.disable_faults)) {
         return m_aircraft_types[(id - 1) % m_aircraft_types.size()];
     }
-    return m_aircraft_types[m_shared.m_fault_model.random_index(m_aircraft_types.size() - 1)];
+    return m_aircraft_types[m_shared.m_fault_model.random_index(static_cast<int>(m_aircraft_types.size()) - 1)];
 }
 
 } // namespace ta

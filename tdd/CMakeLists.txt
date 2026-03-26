@@ -13,6 +13,7 @@ set(source_files
     ../src/fault_model.cpp
     ../src/sequencer.cpp
     ../src/vertiport.cpp
+    ../src/configuration.cpp
     tests/test_event_queue.cpp
     tests/test_event_type.cpp
     tests/test_aircraft_type.cpp
@@ -21,8 +22,10 @@ set(source_files
     tests/test_fault_model.cpp
     tests/test_sequencer.cpp
     tests/test_vertiport.cpp
+    tests/test_configuration.cpp
 )
 
 add_executable(ta_tests main.cpp "${source_files}")
+target_compile_options(ta_tests PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Wconversion)
 target_link_libraries(ta_tests GTest::gtest)
 include_directories("../src")
