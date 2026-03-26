@@ -13,3 +13,4 @@ CMakeUserPresets.json
 build
 .vscode
 generated_documents
+*.gz
