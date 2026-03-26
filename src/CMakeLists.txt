@@ -11,6 +11,7 @@ set(source_files
     sequencer.cpp
     vertiport.cpp
     configuration.cpp
+    simulation.cpp
 )
 
 add_executable(technical_assessment main.cpp "${source_files}")

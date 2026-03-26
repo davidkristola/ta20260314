@@ -16,6 +16,11 @@ cd build
 cmake .. && cmake --build . && ./technical_assessment
 ```
 
+## Build some of the UML diagrams
+```bash
+java -jar "/path/to/plantuml.jar" doc_inc/*.puml
+```
+
 # Unit tests
 
 Note that the unit tests require Google Test.
@@ -136,4 +141,7 @@ This is an unordered list of "nice to have" features:
 * Better statistics about charger wait time
 * Different types of chargers (faster, slower)
 * Better statistics about factors that impact costs and income
-
+* Use a library for units (Boost)
+* Improve fault modeling
+* Make AircraftType immutable
+* Parse a configuration file for aircraft types, etc.

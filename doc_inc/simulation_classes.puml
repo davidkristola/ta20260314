@@ -1,5 +1,8 @@
 @startuml{simulation_classes.png}
 
+Simulation *--> Configuration : m_configuration
+Simulation -- Sequencer
+
 SharedResources *--> StatisticsPool : m_statistics
 SharedResources *--> EventQueue : m_event
 SharedResources *--> FaultModel : m_fault_model
@@ -27,6 +30,13 @@ Aircraft -- FaultModel : time_to_next_fault
 Vertiport -- EventType
 Vertiport -- SharedResources
 Vertiport -- EventQueue : push
+
+class Simulation {
+    -m_configuration
+    +setup_and_run()
+    -report()
+    -show_statistics_for()
+}
 
 class SharedResources {
     m_statistics
