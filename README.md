@@ -122,4 +122,4 @@ Statistics for Echo
 
  ## SimEntity
 
-![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/tree/main/doc_inc/classta_1_1_sim_entity__inherit__graph.png)
+![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/classta_1_1_sim_entity__inherit__graph.png)
