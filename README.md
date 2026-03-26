@@ -113,7 +113,7 @@ Statistics for Echo
 ## The Simulation
 The simulation is centered around a time-ordered event queue. At the start of the simulation, all aircraft take off (see assumption #5 in coordination with #1).
 
-![Simulation](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/simulation_classes.png
+![Simulation](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/simulation_classes.png)
 
 ## SimEntity
 Base class for all simulation entities.
