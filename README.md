@@ -121,5 +121,16 @@ Statistics for Echo
  # Design
 
  ## SimEntity
+Base class for all simulation entities.
+![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/sim_entity_hierarchy.png)
 
-![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/classta_1_1_sim_entity__inherit__graph.png)
+### Aircraft
+Class for simulated eVTOL aircraft.
+![Aircraft State Machine](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/aircraft_state_machine.png)
+
+### Vertiport
+The `Vertiport` manages a configurable number of chargers. Once all chargers are in use, aircraft landing are placed in
+a first-in-first-out queue.
+
+## The Simulation
+

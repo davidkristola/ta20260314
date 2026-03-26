@@ -1,22 +1,13 @@
 /// @file
 
-#include "aircraft.hpp"
-#include "common_types.hpp"
-#include "event_queue.hpp"
+#include "configuration.hpp"
 #include "sequencer.hpp"
 #include "shared_resources.hpp"
 #include "statistics.hpp"
-#include "vertiport.hpp"
-
-
 
 #include <iostream>
-#include <random>
-#include <sstream>
 #include <string>
 #include <vector>
-
-// https://extapps.ksc.nasa.gov/Reliability/Documents/170505_Risk_Failure_Probability_and_Failure_Rate.pdf
 
 namespace ta {
 

@@ -1,0 +1,19 @@
+@startuml{sim_entity_hierarchy.png}
+SimEntity <|-- Aircraft
+SimEntity <|-- Vertiport
+Aircraft o-- AircraftType : is-a >
+
+class SimEntity {
+    -id
+    {abstract} +process_event()
+}
+
+class Aircraft {
+    +process_event()
+}
+
+class Vertiport {
+    +process_event()
+}
+
+@enduml

@@ -1,0 +1,10 @@
+
+@startuml{aircraft_state_machine.png}
+[*] --> idle
+idle --> flying : take_off
+idle --> charging : start_charging
+flying --> idle : land
+flying --> faulted : experience_fault
+charging --> idle : complete_charging
+faulted --> [*]
+@enduml
