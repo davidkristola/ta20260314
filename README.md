@@ -111,26 +111,69 @@ Statistics for Echo
     total vehicles in sim                   : 5
 ```
 
- As you can see in this run, 3 out of 4 Alpha vehicles experienced faults, and 5 out of 5 Echo vehicles also experienced faults.
+As you can see in this run, 3 out of 4 Alpha vehicles experienced faults, and 5 out of 5 Echo vehicles also experienced faults.
 
- # Design
+# Design
+Exceptions are thrown for precondition violation, but they are not caught. At present, the simulation does not crash. A precondition exception
+indicates a coding error.
 
 ## The Simulation
 The simulation is centered around a time-ordered event queue. At the start of the simulation, all aircraft take off (see assumption #5 in coordination with #1).
 
 ![Simulation](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/simulation_classes.png)
 
+## Simulation Class
+This is just a holder to bind together the `Configuration` and the `Sequencer`.
+
+## Configuration Class
+This provides the parameters that shape the simulation. Default parameters are provided, but can be modified using
+the command line.
+
+## Sequencer Class
+This class creates and uses the SharedResources for the simulation. Simulation steps are executed one at a time until the `end_of_simulation` event is popped from
+the event queue.
+
+The `Sequencer` creates the pool of aircraft (by picking randomly from the available types) and a single `Vertiport`. These are managed separately now, but should be
+combined into a single pool of simulation entities. Also the work of creating this pool should be moved into a new class.
+
+## SharedResources ~~Class~~ Struct
+This is really just a data holder for the resources needed by a `SimEntity` to process an `EventType`.
+
+## StatisticsPool Class
+A wrapping around a `std::map` to hold `Statistics` classes.
+
+## Statistics Class
+Sets of information accumulated over a simulation run for a specific aircraft.
+- average flight time per flight
+- average distance traveled per flight
+- average time charging per charge session
+- total number of faults
+- total number of passenger miles
+
+## EventQueue Class
+A wrapper around a `std::priority_queue` with added logic to enforce preconditions.
+
+## FaultModel Class
+This is an attempt to model faults that occur during aircraft flight. The model inverts the probability per flight hour to create a pseudo mean time between failures, then
+uses the random number generator to pick a `std::uniform_real_distribution` value in the range. This is a naive model, but satisfies the current requirements.
+
 ## SimEntity
 Base class for all simulation entities.
 ![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/sim_entity_hierarchy.png)
 
 ### Aircraft
-Class for simulated eVTOL aircraft.
+Class for simulated eVTOL aircraft. The code is designed to work as functions of time. Given a flight time, the batteries will discharge appropriately.
+Given a charge time, the batteries will be recharged appropriately.
+
 ![Aircraft State Machine](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/aircraft_state_machine.png)
 
 ### Vertiport
 The `Vertiport` manages a configurable number of chargers. Once all chargers are in use, aircraft landing are placed in
 a first-in-first-out queue.
+
+## common_types.hpp
+This is a collection of primitive data types that are used across the codebase. A `using` clause forms a `typedef` so the unit types are not
+unique. They could be mixed inappropriately. A units library should be employed to ensure proper usage of these types.
 
 # Future Modifications
 
@@ -143,5 +186,6 @@ This is an unordered list of "nice to have" features:
 * Better statistics about factors that impact costs and income
 * Use a library for units (Boost)
 * Improve fault modeling
-* Make AircraftType immutable
+* Make `AircraftType` immutable
 * Parse a configuration file for aircraft types, etc.
+* Combine `Aircraft`, `Vertiport`, and other simulation entities into a unified pool
