@@ -13,7 +13,7 @@ Sequencer::Sequencer(Configuration configuration) noexcept
     m_shared.m_fault_model.seed(configuration.seed);
     m_shared.m_vertiport_id = VERTIPORT_ID;
     m_shared.m_queue.push(EventType{configuration.run_time, Cause::end_of_simulation});
-    m_shared.disable_faults = configuration.disable_faults;
+    m_shared.m_disable_faults = configuration.disable_faults;
 
     for (SimEntityId id = 1U; id <= configuration.aircraft_count; ++id) {
         Aircraft aircraft{pick_type(id), id};
@@ -66,7 +66,7 @@ void Sequencer::step() noexcept
 
 const AircraftType& Sequencer::pick_type(SimEntityId id) noexcept
 {
-    if ((id <= m_aircraft_types.size()) or (m_shared.disable_faults)) {
+    if ((id <= m_aircraft_types.size()) or (m_shared.m_disable_faults)) {
         return m_aircraft_types[(id - 1) % m_aircraft_types.size()];
     }
     return m_aircraft_types[m_shared.m_fault_model.random_index(static_cast<int>(m_aircraft_types.size()) - 1)];

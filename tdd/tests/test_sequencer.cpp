@@ -48,7 +48,7 @@ TEST(Sequencer, first_step)
     ta::Configuration configuration{
         .aircraft_types = {CONDOR}, .aircraft_count = 1, .charger_count = 1, .run_time = 1.0, .disable_faults = true};
     ta::Sequencer uut{configuration};
-    uut.shared_resources().disable_faults = true;
+    uut.shared_resources().m_disable_faults = true;
     uut.step();
     EXPECT_DOUBLE_EQ(flight_time(CONDOR), uut.simulation_time());
     EXPECT_EQ(0U, uut.statistics(CONDOR.m_name).total_flights());

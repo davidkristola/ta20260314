@@ -1,0 +1,131 @@
+@startuml{simulation_classes.png}
+
+SharedResources *--> StatisticsPool : m_statistics
+SharedResources *--> EventQueue : m_event
+SharedResources *--> FaultModel : m_fault_model
+
+StatisticsPool o--> "many" Statistics : m_pool
+
+EventQueue o--> "many" EventType : m_queue
+
+Configuration o--> "many" AircraftType : aircraft_types
+
+Sequencer -- Configuration : used in construction <
+Sequencer *--> "many" AircraftType : m_aircraft_types
+Sequencer *--> "many" Aircraft : m_aircraft
+Sequencer *--> Vertiport : m_vertiport
+Sequencer *--> SharedResources : m_shared
+
+Sequencer -- FaultModel : random_index
+
+Aircraft -- EventType
+Aircraft -- SharedResources
+Aircraft -- EventQueue : push
+Aircraft -- Statistics : report
+Aircraft -- FaultModel : time_to_next_fault
+
+Vertiport -- EventType
+Vertiport -- SharedResources
+Vertiport -- EventQueue : push
+
+class SharedResources {
+    m_statistics
+    m_queue
+    m_vertiport_id
+    m_fault_model
+    m_disable_faults
+    +push()
+    +aircraft_statistics()
+    +vertiport_id()
+    +faults_enabled()
+}
+
+class EventQueue {
+    -m_earliest_allowed_time
+    -m_queue
+    +push()
+    +pop()
+    +empty()
+    +top_time()
+}
+
+class EventType {
+    -m_time
+    -m_cause
+    -m_subject
+    -m_secondary_object
+    +time()
+    +cause()
+    +subject()
+    +secondary_object()
+}
+
+class StatisticsPool {
+    -m_pool
+    +add()
+    +get()
+}
+
+class Statistics {
+}
+
+class FaultModel {
+    -m_generator
+    +seed()
+    +time_to_next_fault()
+    +random_index
+}
+
+class Aircraft {
+    -m_type
+    -m_current_charge
+    -m_state
+    -m_activity_start_time
+    +process_event()
+}
+
+class Vertiport {
+    -m_chargers
+    -m_in_use
+    -m_waiting
+    +process_event()
+}
+
+class AircraftType {
+    +m_name
+    +m_cruise_speed
+    +m_battery_capacity
+    +m_time_to_charge
+    +m_energy_used_at_cruise
+    +m_passenger_count
+    +m_fault_probability_per_hour
+    +charge_rate()
+}
+
+class Configuration {
+    +aircraft_types
+    +aircraft_count
+    +charger_count
+    +run_time
+    +seed
+    +disable_faults
+    +process_command_line_arguments()
+}
+
+class Sequencer {
+    -m_aircraft_types
+    -m_aircraft
+    -m_current_time
+    -m_shared
+    -m_done
+    -m_vertiport
+    +done()
+    +simulation_time()
+    +aircraft_count()
+    +aircraft()
+    +shared_resources()
+    +step()
+    -pick_type()
+}
+
+@enduml

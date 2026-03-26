@@ -1,7 +1,7 @@
 @startuml{sim_entity_hierarchy.png}
 SimEntity <|-- Aircraft
 SimEntity <|-- Vertiport
-Aircraft o-- AircraftType : is-a >
+Aircraft o-- AircraftType : the type of the aircraft >
 
 class SimEntity {
     -id
@@ -9,11 +9,29 @@ class SimEntity {
 }
 
 class Aircraft {
+    -m_type
+    -m_current_charge
+    -m_state
+    -m_activity_start_time
     +process_event()
 }
 
 class Vertiport {
+    -m_chargers
+    -m_in_use
+    -m_waiting
     +process_event()
+}
+
+class AircraftType {
+    +m_name
+    +m_cruise_speed
+    +m_battery_capacity
+    +m_time_to_charge
+    +m_energy_used_at_cruise
+    +m_passenger_count
+    +m_fault_probability_per_hour
+    +charge_rate()
 }
 
 @enduml

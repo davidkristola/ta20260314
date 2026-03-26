@@ -124,7 +124,7 @@ TEST(Aircraft, take_off)
 {
     ta::Aircraft        uut{BUMBLE_BEE, 32U};
     ta::SharedResources sr{};
-    sr.disable_faults = true;
+    sr.m_disable_faults = true;
     ta::EventType takeoff_event{0.0, ta::Cause::take_off, 32U, VERTIPORT_ID};
     sr.m_vertiport_id = VERTIPORT_ID;
     uut.process_event(takeoff_event, sr);
@@ -141,7 +141,7 @@ TEST(Aircraft, land)
 {
     ta::Aircraft        uut{BUMBLE_BEE, 32U};
     ta::SharedResources sr{};
-    sr.disable_faults = true;
+    sr.m_disable_faults = true;
     ta::EventType event{FULL_FLIGHT_TIME, ta::Cause::land, 32U, VERTIPORT_ID};
     sr.m_vertiport_id = VERTIPORT_ID;
     uut.process_event(event, sr);

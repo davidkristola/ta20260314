@@ -20,14 +20,14 @@ public:
     EventQueue     m_queue;
     SimEntityId    m_vertiport_id = InvalidSimEntityId;
     FaultModel     m_fault_model;
-    bool           disable_faults = false;
+    bool           m_disable_faults = false;
 
     ///@{
     /// Helper function.
     void        push(EventType event) { m_queue.push(event); }
     Statistics& aircraft_statistics(std::string_view name) { return m_statistics.get(name); }
     SimEntityId vertiport_id() const noexcept { return m_vertiport_id; }
-    bool        faults_enabled() const noexcept { return (not disable_faults); }
+    bool        faults_enabled() const noexcept { return (not m_disable_faults); }
     ///@}
 };
 

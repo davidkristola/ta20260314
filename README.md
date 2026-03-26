@@ -108,19 +108,14 @@ Statistics for Echo
 
  As you can see in this run, 3 out of 4 Alpha vehicles experienced faults, and 5 out of 5 Echo vehicles also experienced faults.
 
- # Future Modifications
-
- This is an unordered list of "nice to have" features:
- * Logging
- * Some sort of dispatcher model so that all aircraft don't fly until their batteries are depleted
- * Multiple vertiport models to dispatch aircraft to and from
- * Better statistics about charger wait time
- * Different types of chargers (faster, slower)
- * Better statistics about factors that impact costs and income
-
  # Design
 
- ## SimEntity
+## The Simulation
+The simulation is centered around a time-ordered event queue. At the start of the simulation, all aircraft take off (see assumption #5 in coordination with #1).
+
+![Simulation](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/simulation_classes.png
+
+## SimEntity
 Base class for all simulation entities.
 ![SimEntity class hierarchy](https://github.com/davidkristola/ta20260314/blob/main/doc_inc/sim_entity_hierarchy.png)
 
@@ -132,5 +127,13 @@ Class for simulated eVTOL aircraft.
 The `Vertiport` manages a configurable number of chargers. Once all chargers are in use, aircraft landing are placed in
 a first-in-first-out queue.
 
-## The Simulation
+# Future Modifications
+
+This is an unordered list of "nice to have" features:
+* Logging
+* Some sort of dispatcher model so that all aircraft don't fly until their batteries are depleted
+* Multiple vertiport models to dispatch aircraft to and from
+* Better statistics about charger wait time
+* Different types of chargers (faster, slower)
+* Better statistics about factors that impact costs and income
 
